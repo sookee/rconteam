@@ -14,7 +14,7 @@ OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))
 all: rconteam
 
 %.o: %.c $(DEPS)
-	$(CXX) -c -o $@ $< $(CFLAGS)
+	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 rconteam: $(OBJECTS) 
 	$(CXX) -o rconteam $(OBJECTS)
