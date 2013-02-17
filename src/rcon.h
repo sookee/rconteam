@@ -1,17 +1,16 @@
 #pragma once
-#ifndef TEAMPOLICY_H_
-#define TEAMPOLICY_H_
+#ifndef _OA_RCON_H_
+#define _OA_RCON_H_
 
 /*
- * TeamPolicy.h
+ * rcon.h
  *
- *  Created on: Feb 17, 2013
- *      Author: oasookee@gmail.com
+ *  Created on: 01 June 2012
+ *      Author: oasookee@googlemail.com
  */
 
 /*-----------------------------------------------------------------.
-| Copyright (C) 2013 SooKee oaskivvy@gmail.com                     |
-|               2013 w!ng                                          |
+| Copyright (C) 2012 SooKee oasookee@googlemail.com               |
 '------------------------------------------------------------------'
 
 This program is free software; you can redistribute it and/or
@@ -37,29 +36,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
-class TeamPolicy
-{
-public:
-	TeamPolicy() {}
-	virtual ~TeamPolicy() {}
+using namespace skivvy::types;
 
-	virtual bool balance() = 0;
-};
+bool rcon(const str& host, int port, const str& cmd, str& res)
 
-class LIFOTeamPolicy
-: public TeamPolicy
-{
-public:
+}} // oa
 
-	/**
-	 * rearrang the players to produce a balanced
-	 * game according to the implementing policy
-	 * @param g The game to be balanced.
-	 * @return true, if changes were made, else false
-	 */
-	virtual bool balance(game& g);
-};
-
-} // oa
-
-#endif /* TEAMPOLICY_H_ */
+#endif // _OA_RCON_H_

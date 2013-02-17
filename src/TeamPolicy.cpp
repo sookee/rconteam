@@ -43,11 +43,12 @@ namespace oa {
 bool LIFOTeamPolicy::balance(game& g)
 {
 	if(std::abs(int(g.B.size()) - int(g.R.size())) < 2)
-		return true; // ballanced
+		return false; // ballanced
 
 	team& to = g.B.size() < g.R.size() ? g.B : g.R;
 	team& from = g.R.size() < g.B.size() ? g.B : g.R;
 
+	bool changed = false;
 	while(from.size() - to.size() > 1)
 	{
 		time_t last_time = time_t(-1);
@@ -70,9 +71,10 @@ bool LIFOTeamPolicy::balance(game& g)
 
 		from.erase(last_guid);
 		to.insert(last_guid);
+		changed = true;
 	}
 
-	return true;
+	return changed;
 }
 
 } // oa

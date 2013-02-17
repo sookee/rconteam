@@ -32,4 +32,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 int main()
 {
 
+	// update game snapshot from rcon
+	// select team policy (rcon variable)
+	// calculate new team
+	// implement team chages using rcon
+	// -> request / !putteam
+	// sleep for a bit
+
 }

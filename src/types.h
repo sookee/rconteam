@@ -37,14 +37,30 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <set>
 #include <map>
 #include <ctime>
+#include <mutex>
 
 namespace oa {
 
+// basic types
 typedef std::string str;
 typedef std::size_t siz;
 
+// containers
 typedef std::set<str> str_set;
 
+// time
+typedef std::chrono::steady_clock st_clk;
+typedef st_clk::period st_period;
+typedef st_clk::time_point st_time_point;
+
+typedef std::chrono::high_resolution_clock hr_clk;
+typedef hr_clk::period hr_period;
+typedef hr_clk::time_point hr_time_point;
+
+// threads
+typedef std::lock_guard<std::mutex> lock_guard;
+
+// project types
 struct player
 {
 	str guid;

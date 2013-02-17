@@ -7,7 +7,7 @@ CXXFLAGS = \
 	-std=c++11
 
 CXX = g++
-DEPS = TeamPolicy.h
+DEPS := $(wildcard *.h)
 SOURCES := $(wildcard *.cpp)
 OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))
 
