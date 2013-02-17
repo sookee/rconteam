@@ -109,6 +109,10 @@ public:
 		return true;
 	}
 
+	/**
+	 * Query the server over rcon for the value of the cvar 'rconteam_policy'
+	 * and select the appropriate TeamPolicy inplementation accordingly.
+	 */
 	void select_policy()
 	{
 		str response;
@@ -118,23 +122,23 @@ public:
 			return;
 		}
 
-		// unknown command: rconteam_policy
-		// "rconteam_policy" is:"FIFO^7", the default
-		con(response);
+		// Possible responses:
+		// -> unknown command: rconteam_policy
+		// -> "rconteam_policy" is:"FIFO^7", the default
 
-		str pol;
+		str policy_name;
 
 		if(response.find("unknown command:"))
 		{
 			str skip;
-			if(!sgl(sgl(siss(response), skip, ':').ignore(), pol, '^'))
+			if(!sgl(sgl(siss(response), skip, ':').ignore(), policy_name, '^'))
 				log("ERROR: parsing policy response: " << response);
 		}
 
-		con("pol: " << pol);
+		con("pol: " << policy_name);
 
-		if(!policy.get() || pol != policy->name())
-			policy = TeamPolicy::create(pol);
+		if(!policy.get() || policy_name != policy->name())
+			policy = TeamPolicy::create(policy_name);
 	}
 
 	void run()
