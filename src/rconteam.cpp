@@ -29,11 +29,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-<<<<<<< HEAD
-int main( int argc , char* arguments[] )
-{
-	return -1;
-=======
 #include "log.h"
 #include "rcon.h"
 #include "types.h"
@@ -145,5 +140,4 @@ int main(int argc, char* argv[])
 
 	TeamBalancer tb(host, port, pass);
 	tb.run();
->>>>>>> 8ac6d500ab27d8d35d86911d48ee955c7b3e7360
 }

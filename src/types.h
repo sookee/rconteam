@@ -34,18 +34,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include <string>
-<<<<<<< HEAD
-#include <ctime>
-#include <set>
-#include <map>
-=======
 #include <set>
 #include <map>
 #include <ctime>
 #include <mutex>
 #include <fstream>
 #include <sstream>
->>>>>>> 8ac6d500ab27d8d35d86911d48ee955c7b3e7360
 
 namespace oa {
 
