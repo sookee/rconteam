@@ -120,6 +120,17 @@ struct game
 	}
 };
 
+/*struct to pass information about sql db aroung*/
+struct dbinfo
+{
+	str host;
+	str port;
+	str login;
+	str password;
+	str dnName;
+};
+
+
 } // oa
 
 #endif /* TEAMPOLICY_H_ */
