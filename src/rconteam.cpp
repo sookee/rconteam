@@ -30,6 +30,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include "log.h"
+#include "rcon.h"
 #include "types.h"
 
 #include <thread>
@@ -79,6 +80,12 @@ public:
 		//          return false;
 		//
 		//      // parse response here for player info
+
+		str response;
+		if(!rcon(host, port, "rcon " + pass + " !listplayers", response))
+			return false;
+
+		con(response);
 
 		return true;
 	}

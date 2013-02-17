@@ -36,10 +36,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
-using namespace skivvy::types;
+using namespace oa;
 
-bool rcon(const str& host, int port, const str& cmd, str& res)
+bool rcon(const str& host, int port, const str& cmd, str& res);
 
-}} // oa
+} // oa
 
 #endif // _OA_RCON_H_
