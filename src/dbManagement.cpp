@@ -29,7 +29,13 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-int main( int argc , char* arguments[] )
+#include "types.h"
+#include "debug.h"
+
+using namespace std;
+
+int getPlayersScore( player* p )
 {
-	return -1;
+	STUB_WARNING("get player scores here");	
+	return -1;	
 }
