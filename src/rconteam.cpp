@@ -81,10 +81,21 @@ public:
 		//
 		//      // parse response here for player info
 
+		// GET guid's/names
+
 		str response;
 		if(!rcon(host, port, "rcon " + pass + " !listplayers", response))
 			return false;
 
+		// parse this info
+		con(response);
+
+		// GET teams/scores - neet to match to guids/names
+
+		if(!rcon(host, port, "rcon " + pass + " status", response))
+			return false;
+
+		// parse this info
 		con(response);
 
 		return true;
