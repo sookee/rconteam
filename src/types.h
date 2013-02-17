@@ -33,6 +33,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+#include <string>
+#include <ctime>
+#include <set>
+#include <map>
+
 namespace oa {
 
 typedef std::string str;
@@ -57,6 +62,17 @@ struct game
 
 	std::map<str, player> players;
 };
+
+/*struct to pass information about sql db aroung*/
+struct dbinfo
+{
+	str host;
+	str port;
+	str login;
+	str password;
+	str dnName;
+};
+
 
 } // oa
 
