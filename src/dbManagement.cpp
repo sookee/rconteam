@@ -32,7 +32,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "types.h"
 #include "debug.h"
 
-using namespace std;
+using namespace oa;
 
 int getPlayersScore( player* p )
 {
