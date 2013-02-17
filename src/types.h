@@ -1,6 +1,6 @@
 #pragma once
 #ifndef _OA_TYPES_H_
-#define _OA_ TYPES_H_
+#define _OA_TYPES_H_
 
 /*
  * types.h
