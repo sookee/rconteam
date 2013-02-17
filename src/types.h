@@ -38,6 +38,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <map>
 #include <ctime>
 #include <mutex>
+#include <fstream>
+#include <sstream>
 
 namespace oa {
 
@@ -60,11 +62,34 @@ typedef hr_clk::time_point hr_time_point;
 // threads
 typedef std::lock_guard<std::mutex> lock_guard;
 
+// streams
+
+typedef std::stringstream sss;
+typedef std::istringstream siss;
+typedef std::ostringstream soss;
+
+typedef std::fstream sfs;
+typedef std::ifstream sifs;
+typedef std::ofstream sofs;
+
+inline
+std::istream& sgl(std::istream& is, str& s, char d = '\n')
+{
+	return std::getline(is, s, d);
+}
+
+inline
+std::istream& sgl(std::istream&& is, str& s, char d = '\n')
+{
+	return sgl(is, s, d);
+}
+
 // project types
 struct player
 {
 	str guid;
 	siz score;
+	str name;
 	std::time_t joined;
 };
 
@@ -77,6 +102,16 @@ struct game
 	team B;
 
 	std::map<str, player> players;
+
+	void dump(std::ostream& os)
+	{
+		os << "red:\n";
+		for(const str& guid: R)
+			os << '\t' << players[guid].name << " has " << players[guid].score << " points." << '\n';
+		os << "blue:\n";
+		for(const str& guid: R)
+			os << '\t' << players[guid].name << " has " << players[guid].score << " points." << '\n';
+	}
 };
 
 } // oa
