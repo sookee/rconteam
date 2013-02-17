@@ -30,72 +30,70 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include "TeamPolicy.h"
+#include "types.h"
 
 #include <cmath>
 
 namespace oa {
 
-/**
- * Ballance number of players awitching
- * last person to join first.
- * @param g
- */
-bool LIFOTeamPolicy::balance(game& g)
+bool TeamPolicy::action(const game& g, str& guid, char& t)
 {
 	if(std::abs(int(g.B.size()) - int(g.R.size())) < 2)
 		return false; // ballanced
 
-	team& to = g.B.size() < g.R.size() ? g.B : g.R;
-	team& from = g.R.size() < g.B.size() ? g.B : g.R;
+	const team& to = g.B.size() < g.R.size() ? g.B : g.R;
+	const team& from = g.R.size() < g.B.size() ? g.B : g.R;
 
-	bool changed = false;
-	while(from.size() - to.size() > 1)
-	{
-		time_t last_time = time_t(-1);
-		str last_guid;
-
-		for(const str& guid: from)
-		{
-			if(g.players[guid].joined < last_time)
-			{
-				last_time = g.players[guid].joined;
-				last_guid = guid;
-			}
-		}
-
-		if(last_guid.empty())
-		{
-			// should never happen
-			return false;
-		}
-
-		from.erase(last_guid);
-		to.insert(last_guid);
-		changed = true;
-	}
-
-	return changed;
+	if(!balance(g, from, to, guid))
+		return false;
+	t = g.B.size() < g.R.size() ? 'B' : 'R';
+	return true;
 }
 
 /**
- * Ballance number of players awitching
+ * Ballance number of players by switching
+ * last person to join first.
+ * @param g
+ */
+bool LIFOTeamPolicy::balance(const game& g, const team& from, const team& to, str& guid)
+{
+	time_t last_time = time_t(-1);
+	str last_guid;
+
+	for(const str& this_guid: from)
+	{
+		if(g.players.at(this_guid).joined < last_time)
+		{
+			last_time = g.players.at(this_guid).joined;
+			last_guid = this_guid;
+		}
+	}
+
+	if(last_guid.empty())
+	{
+		// should never happen
+		return false;
+	}
+
+	guid = last_guid;
+	return true;
+}
+
+/**
+ * Ballance number of players by switching
  * last the most appropriately skilled person.
  * @param g
  */
-bool SkillTeamPolicy::balance(game& g)
+bool SkillTeamPolicy::balance(const game& g, const team& from, const team& to, str& guid)
 {
 	if(std::abs(int(g.B.size()) - int(g.R.size())) < 2)
 		return false; // ballanced
-
-	team& to = g.B.size() < g.R.size() ? g.B : g.R;
-	team& from = g.R.size() < g.B.size() ? g.B : g.R;
 
 	bool changed = false;
 	while(from.size() - to.size() > 1)
 	{
 //		changed = true;
 	}
-
 	return changed;
 }
 

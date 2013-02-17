@@ -40,6 +40,28 @@ using namespace oa;
 
 bool rcon(const str& host, int port, const str& cmd, str& res);
 
+class RCon
+{
+	const str host;
+	const siz port;
+	const str pass;
+
+public:
+	RCon(const str& host, siz port, const str& pass)
+	: host(host), port(port), pass(pass) {}
+
+	bool call(const str& cmd, str& res) const
+	{
+		return rcon(host, port, "rcon " + pass + " " + cmd, res);
+	}
+
+	bool call(const str& cmd) const
+	{
+		str res;
+		return call(cmd, res);
+	}
+};
+
 } // oa
 
 #endif // _OA_RCON_H_

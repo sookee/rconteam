@@ -33,6 +33,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+#include "rcon.h"
 #include "types.h"
 
 #include <memory>
@@ -43,9 +44,12 @@ typedef std::shared_ptr<class TeamPolicy> TeamPolicySPtr;
 
 class TeamPolicy
 {
+private:
+
 public:
-	TeamPolicy() {}
 	virtual ~TeamPolicy() {}
+
+	bool action(const game& g, str& guid, char& team);
 
 	/**
 	 * Policy name
@@ -54,12 +58,15 @@ public:
 	virtual str name() const = 0;
 
 	/**
-	 * rearrang the players to produce a balanced
-	 * game according to the implementing policy
+	 * Make exactly one balancing suggestion to correct the teams.
+	 * This function will be called repeatedly to discover
+	 * a balancing action if necessary.
 	 * @param g The game to be balanced.
-	 * @return true, if changes were made, else false
+	 * @param guid Output the guid of the player to be moved.
+	 * @return true if a balancing recommendation has been made else false.
+	 * The return parameter guid conteain the resommendation.
 	 */
-	virtual bool balance(game& g) = 0;
+	virtual bool balance(const game& g, const team& from, const team& to, str& guid) = 0;
 
 	/**
 	 * Factory funstion for selecting policies
@@ -74,16 +81,8 @@ class LIFOTeamPolicy
 : public TeamPolicy
 {
 public:
-
 	str name() const { return "FIFO"; }
-
-	/**
-	 * rearrang the players to produce a balanced
-	 * game according to the implementing policy
-	 * @param g The game to be balanced.
-	 * @return true, if changes were made, else false
-	 */
-	virtual bool balance(game& g);
+	virtual bool balance(const game& g, const team& from, const team& to, str& guid);
 
 };
 
@@ -91,16 +90,8 @@ class SkillTeamPolicy
 : public TeamPolicy
 {
 public:
-
 	str name() const { return "SKILL"; }
-
-	/**
-	 * rearrang the players to produce a balanced
-	 * game according to the implementing policy
-	 * @param g The game to be balanced.
-	 * @return true, if changes were made, else false
-	 */
-	virtual bool balance(game& g);
+	virtual bool balance(const game& g, const team& from, const team& to, str& guid);
 
 };
 

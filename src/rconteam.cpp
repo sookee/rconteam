@@ -42,25 +42,29 @@ using namespace oa;
 class TeamBalancer
 {
 private:
-	const str host;
-	const siz port;
-	const str pass;
-
 	bool done = false;
 
+	const RCon rcon;
 	TeamPolicySPtr policy;
 
 	game g; // current snapshot
 
-	bool rcon(const str& command, str& response)
+	enum
 	{
-		return oa::rcon(host, port, "rcon " + pass + " " + command, response);
-	}
+		ACT_CALL_TEAMS, ACT_REQUEST_PLAYER, ACT_PUTTEAM
+	};
+
+	typedef std::map<str, siz> action_map;
+	action_map actions;
+
+	void call_teams(const str& guid, char team);
+	void request_player(const str& guid, char team);
+	void putteam(const str& guid, char team);
 
 public:
 
-	TeamBalancer(const str& host, siz port, const str& pass)
-	: host(host), port(port), pass(pass), policy(TeamPolicy::create()) {}
+	TeamBalancer(const RCon& rcon)
+	: rcon(rcon), policy(TeamPolicy::create()) {}
 
 	/**
 	 * Get the current state of the server to reflect in the game object.
@@ -92,7 +96,7 @@ public:
 		// GET guid's/names
 
 		str response;
-		if(!rcon("!listplayers", response))
+		if(!rcon.call("!listplayers", response))
 			return false;
 
 		// parse this info
@@ -100,7 +104,7 @@ public:
 
 		// GET teams/scores - neet to match to guids/names
 
-		if(!rcon("status", response))
+		if(!rcon.call("status", response))
 			return false;
 
 		// parse this info
@@ -116,7 +120,7 @@ public:
 	void select_policy()
 	{
 		str response;
-		if(!rcon("rconteam_policy", response))
+		if(!rcon.call("rconteam_policy", response))
 		{
 			log("WARN: rcon failure");
 			return;
@@ -154,9 +158,18 @@ public:
 			select_policy();
 
 			// calculate new game
-			game new_g = g;
-			if(policy.get())
-				policy->balance(new_g);
+			str guid;
+			char team;
+			if(policy.get() && policy->action(g, guid, team))
+			{
+				if(actions[guid + team] == ACT_CALL_TEAMS)
+					call_teams(guid, team);
+				else if(actions[guid + team] == ACT_REQUEST_PLAYER)
+					request_player(guid, team);
+				else if(actions[guid + team] == ACT_PUTTEAM)
+					putteam(guid, team);
+			}
+
 
 			// implement team chages using rcon
 
@@ -167,6 +180,28 @@ public:
 		}
 	}
 };
+
+void TeamBalancer::call_teams(const str& guid, char team)
+{
+	// rcon chat "teams!!"
+	rcon.call("chat ^3PLEASE BALANCE THE TEAMS!!");
+	++actions[guid + team]; // escalate
+}
+
+void TeamBalancer::request_player(const str& guid, char team)
+{
+	// rcon chat players[guid].name please change to
+	rcon.call("chat " + g.players[guid].name + " ^3PLEASE CHANGE TEAMS!!");
+	++actions[guid + team]; // escalate
+}
+
+void TeamBalancer::putteam(const str& guid, char team)
+{
+	// rcon !putteam
+	rcon.call("chat ^3SORRY " + g.players[guid].name + " BUT THE TEAMS NEED BALANCING");
+	rcon.call("chat !putteam " + guid + " " + team);
+	actions.clear(); // reset all players
+}
 
 int main(int argc, char* argv[])
 {
@@ -187,6 +222,7 @@ int main(int argc, char* argv[])
 	str host = argv[1];
 	str pass = argv[3];
 
-	TeamBalancer tb(host, port, pass);
+	RCon rcon(host, port, pass);
+	TeamBalancer tb(rcon);
 	tb.run();
 }
