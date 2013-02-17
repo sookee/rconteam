@@ -32,6 +32,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "log.h"
 #include "rcon.h"
 #include "types.h"
+#include "TeamPolicy.h"
 
 #include <thread>
 #include <chrono>
@@ -47,12 +48,19 @@ private:
 
 	bool done = false;
 
+	TeamPolicySPtr policy;
+
 	game g; // current snapshot
+
+	bool rcon(const str& command, str& response)
+	{
+		return oa::rcon(host, port, "rcon " + pass + " " + command, response);
+	}
 
 public:
 
 	TeamBalancer(const str& host, siz port, const str& pass)
-	: host(host), port(port), pass(pass) {}
+	: host(host), port(port), pass(pass), policy(TeamPolicy::create()) {}
 
 	/**
 	 * Get the current state of the server to reflect in the game object.
@@ -69,14 +77,14 @@ public:
 		//
 		// USE:
 		//      str response;
-		//      if(!rcon(host, port, "rcon <password> status", response))
+		//      if(!rcon("status", response))
 		//          return false;
 		//
 		//      // parse response here for player info
 		//
 		//      // ALSO will need this to get guids
 		//
-		//      if(!rcon(host, port, "rcon <password> !listplayers", response))
+		//      if(!rcon("!listplayers", response))
 		//          return false;
 		//
 		//      // parse response here for player info
@@ -84,7 +92,7 @@ public:
 		// GET guid's/names
 
 		str response;
-		if(!rcon(host, port, "rcon " + pass + " !listplayers", response))
+		if(!rcon("!listplayers", response))
 			return false;
 
 		// parse this info
@@ -92,7 +100,7 @@ public:
 
 		// GET teams/scores - neet to match to guids/names
 
-		if(!rcon(host, port, "rcon " + pass + " status", response))
+		if(!rcon("status", response))
 			return false;
 
 		// parse this info
@@ -101,18 +109,55 @@ public:
 		return true;
 	}
 
+	void select_policy()
+	{
+		str response;
+		if(!rcon("rconteam_policy", response))
+		{
+			log("WARN: rcon failure");
+			return;
+		}
+
+		// unknown command: rconteam_policy
+		// "rconteam_policy" is:"FIFO^7", the default
+		con(response);
+
+		str pol;
+
+		if(response.find("unknown command:"))
+		{
+			str skip;
+			if(!sgl(sgl(siss(response), skip, ':').ignore(), pol, '^'))
+				log("ERROR: parsing policy response: " << response);
+		}
+
+		con("pol: " << pol);
+
+		if(!policy.get() || pol != policy->name())
+			policy = TeamPolicy::create(pol);
+	}
+
 	void run()
 	{
 
 		while(!done)
 		{
+			// update game snapshot from rcon
 			get_snapshot();
 			g.dump(std::cout); // for now
-			// update game snapshot from rcon
+
 			// select team policy (rcon variable)
-			// calculate new team
+			select_policy();
+
+			// calculate new game
+			game new_g = g;
+			if(policy.get())
+				policy->balance(new_g);
+
 			// implement team chages using rcon
+
 			// -> request / !putteam
+
 			// sleep for a bit
 			std::this_thread::sleep_for(std::chrono::seconds(3));
 		}

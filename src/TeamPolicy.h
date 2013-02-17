@@ -35,7 +35,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
+#include <memory>
+
 namespace oa {
+
+typedef std::shared_ptr<class TeamPolicy> TeamPolicySPtr;
 
 class TeamPolicy
 {
@@ -43,13 +47,35 @@ public:
 	TeamPolicy() {}
 	virtual ~TeamPolicy() {}
 
-	virtual bool balance() = 0;
+	/**
+	 * Policy name
+	 * @return Name of the implementing policy.
+	 */
+	virtual str name() const = 0;
+
+	/**
+	 * rearrang the players to produce a balanced
+	 * game according to the implementing policy
+	 * @param g The game to be balanced.
+	 * @return true, if changes were made, else false
+	 */
+	virtual bool balance(game& g) = 0;
+
+	/**
+	 * Factory funstion for selecting policies
+	 * @param type Type of policy to create.
+	 * @return The selected policy or a default if type is not known.
+	 */
+	static TeamPolicySPtr create(const str& type = "");
+
 };
 
 class LIFOTeamPolicy
 : public TeamPolicy
 {
 public:
+
+	str name() const { return "FIFO"; }
 
 	/**
 	 * rearrang the players to produce a balanced
@@ -58,6 +84,24 @@ public:
 	 * @return true, if changes were made, else false
 	 */
 	virtual bool balance(game& g);
+
+};
+
+class SkillTeamPolicy
+: public TeamPolicy
+{
+public:
+
+	str name() const { return "SKILL"; }
+
+	/**
+	 * rearrang the players to produce a balanced
+	 * game according to the implementing policy
+	 * @param g The game to be balanced.
+	 * @return true, if changes were made, else false
+	 */
+	virtual bool balance(game& g);
+
 };
 
 } // oa

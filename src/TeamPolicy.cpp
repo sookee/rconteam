@@ -77,4 +77,38 @@ bool LIFOTeamPolicy::balance(game& g)
 	return changed;
 }
 
+/**
+ * Ballance number of players awitching
+ * last the most appropriately skilled person.
+ * @param g
+ */
+bool SkillTeamPolicy::balance(game& g)
+{
+	if(std::abs(int(g.B.size()) - int(g.R.size())) < 2)
+		return false; // ballanced
+
+	team& to = g.B.size() < g.R.size() ? g.B : g.R;
+	team& from = g.R.size() < g.B.size() ? g.B : g.R;
+
+	bool changed = false;
+	while(from.size() - to.size() > 1)
+	{
+//		changed = true;
+	}
+
+	return changed;
+}
+
+TeamPolicySPtr TeamPolicy::create(const str& type)
+{
+	if(type == "LIFO")
+		return TeamPolicySPtr(new LIFOTeamPolicy);
+	else if(type == "SKILL")
+		return TeamPolicySPtr(new SkillTeamPolicy);
+
+	// default
+	return TeamPolicySPtr(new LIFOTeamPolicy);
+}
+
+
 } // oa

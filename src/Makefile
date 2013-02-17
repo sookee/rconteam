@@ -23,6 +23,6 @@ rconteam: $(OBJECTS)
 	$(CXX) -o rconteam $(OBJECTS)
 
 clean:
-	rm -fr *.o rconteam 
+	rm -fr $(OBJECTS) rconteam 
 	
 	
