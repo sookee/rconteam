@@ -93,23 +93,29 @@ struct player
 	std::time_t joined;
 };
 
-typedef str_set team;
+typedef str_set team; // contains guids
 
 struct game
 {
 	// guids
 	team R;
 	team B;
+	team S;
 
-	std::map<str, player> players;
+	std::map<str, player> players; // guid -> player
 
 	void dump(std::ostream& os)
 	{
 		os << "red:\n";
 		for(const str& guid: R)
 			os << '\t' << players[guid].name << " has " << players[guid].score << " points." << '\n';
+
 		os << "blue:\n";
-		for(const str& guid: R)
+		for(const str& guid: B)
+			os << '\t' << players[guid].name << " has " << players[guid].score << " points." << '\n';
+
+		os << "spec:\n";
+		for(const str& guid: S)
 			os << '\t' << players[guid].name << " has " << players[guid].score << " points." << '\n';
 	}
 };
