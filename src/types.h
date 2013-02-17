@@ -33,6 +33,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+#include <string>
+#include <set>
+#include <map>
+#include <ctime>
+
 namespace oa {
 
 typedef std::string str;

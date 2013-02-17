@@ -6,10 +6,18 @@ CXXFLAGS = \
 	-pthread \
 	-std=c++11
 
+CXX = g++
+DEPS = TeamPolicy.h
+SOURCES := $(wildcard *.cpp)
+OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))
+
 all: rconteam
 
-rconteam: rconteam.cpp
-	g++ $< -o $@ $(CXXFLAGS)
+%.o: %.c $(DEPS)
+	$(CXX) -c -o $@ $< $(CFLAGS)
+
+rconteam: $(OBJECTS) 
+	$(CXX) -o rconteam $(OBJECTS)
 
 clean:
 	rm -fr *.o rconteam

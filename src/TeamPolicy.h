@@ -43,7 +43,7 @@ public:
 	TeamPolicy() {}
 	virtual ~TeamPolicy() {}
 
-	virtual void balance() = 0;
+	virtual bool balance() = 0;
 };
 
 class LIFOTeamPolicy

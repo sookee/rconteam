@@ -40,7 +40,7 @@ namespace oa {
  * last person to join first.
  * @param g
  */
-bool LIFOTeamPolicy::ballance(game& g)
+bool LIFOTeamPolicy::balance(game& g)
 {
 	if(std::abs(int(g.B.size()) - int(g.R.size())) < 2)
 		return true; // ballanced
@@ -55,14 +55,14 @@ bool LIFOTeamPolicy::ballance(game& g)
 
 		for(const str& guid: from)
 		{
-			if(g.players[guid].joined < last)
+			if(g.players[guid].joined < last_time)
 			{
 				last_time = g.players[guid].joined;
 				last_guid = guid;
 			}
 		}
 
-		if(guid.empty())
+		if(last_guid.empty())
 		{
 			// should never happen
 			return false;
