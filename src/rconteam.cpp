@@ -250,7 +250,6 @@ public:
 
 void TeamBalancer::call_teams(siz num, char team)
 {
-	// rcon chat "teams!!"
 	rcon.call("chat ^3PLEASE BALANCE THE TEAMS!!");
 	log("call_teams    : " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
@@ -258,7 +257,6 @@ void TeamBalancer::call_teams(siz num, char team)
 
 void TeamBalancer::request_player(siz num, char team)
 {
-	// rcon chat players[num].name please change to
 	rcon.call("chat " + g.players[num].name + " ^3PLEASE CHANGE TEAMS!!");
 	log("request_player: " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
@@ -266,10 +264,10 @@ void TeamBalancer::request_player(siz num, char team)
 
 void TeamBalancer::putteam(siz num, char team)
 {
-	// rcon !putteam
-//	rcon.call("chat ^3SORRY " + g.players[num].name + " BUT THE TEAMS NEED BALANCING");
+	// TODO: Uncomment rcon calls when logging shows the system is working
+	rcon.call("chat ^3SORRY " + g.players[num].name + " BUT THE TEAMS NEED BALANCING");
+//	rcon.call("chat !putteam " + num + " " + team);
 	log("putteam       : " << num << " " << g.players[num].name);
-	//rcon.call("chat !putteam " + num + " " + team);
 	actions.clear(); // reset all players
 }
 
