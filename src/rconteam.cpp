@@ -157,7 +157,7 @@ public:
 			// select team policy (rcon variable)
 			select_policy();
 
-			// calculate new game
+			// implement team chages using rcon
 			str guid;
 			char team;
 			if(policy.get() && policy->action(g, guid, team))
@@ -169,11 +169,6 @@ public:
 				else if(actions[guid + team] == ACT_PUTTEAM)
 					putteam(guid, team);
 			}
-
-
-			// implement team chages using rcon
-
-			// -> request / !putteam
 
 			// sleep for a bit
 			std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -199,7 +194,7 @@ void TeamBalancer::putteam(const str& guid, char team)
 {
 	// rcon !putteam
 	rcon.call("chat ^3SORRY " + g.players[guid].name + " BUT THE TEAMS NEED BALANCING");
-	rcon.call("chat !putteam " + guid + " " + team);
+	//rcon.call("chat !putteam " + guid + " " + team);
 	actions.clear(); // reset all players
 }
 
