@@ -99,6 +99,8 @@ struct player
 	str guid;
 	char team;
 	std::time_t joined;
+
+	player(): num(0), score(0), ping(0), team('S') {}
 };
 
 typedef siz_set team; // contains guids

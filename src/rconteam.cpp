@@ -52,6 +52,10 @@ siz get_last_field(const str& line, str& val, char delim = ' ')
 class TeamBalancer
 {
 private:
+	static const str prefix;
+	static const str suffix;
+
+
 	bool done = false;
 
 	const RCon rcon;
@@ -84,6 +88,8 @@ public:
 	bool get_snapshot()
 	{
 		// GET guid's
+
+		game old_g = g; // previous state
 
 		g.R.clear();
 		g.B.clear();
@@ -121,11 +127,23 @@ public:
 			g.players[num].guid = guid;
 
 			if(team == "R")
+			{
 				g.R.insert(num);
+				// Did we just join the game?
+				if(!old_g.R.count(num) && !old_g.B.count(num))
+					g.players[num].joined = std::time(0);
+			}
 			else if(team == "B")
+			{
 				g.B.insert(num);
+				// Did we just join the game?
+				if(!old_g.R.count(num) && !old_g.B.count(num))
+					g.players[num].joined = std::time(0);
+			}
 			else if(team == "S")
+			{
 				g.S.insert(num);
+			}
 		}
 		// parse this info
 //		con(response);
@@ -219,9 +237,11 @@ public:
 
 	void run()
 	{
+		rcon.call("chat " + prefix + "RCONTEAM System online: v0.1-beta" + suffix);
 
 		while(!done)
 		{
+//			rcon.call("chat " + prefix + "Analizing Teams" + suffix);
 			// update game snapshot from rcon
 			get_snapshot();
 			g.dump(std::cout); // for now
@@ -243,21 +263,24 @@ public:
 			}
 
 			// sleep for a bit
-			std::this_thread::sleep_for(std::chrono::seconds(3));
+			std::this_thread::sleep_for(std::chrono::seconds(10));
 		}
 	}
 };
 
+const str TeamBalancer::prefix = "^3^7TEAM^3^7";
+const str TeamBalancer::suffix = "^3";
+
 void TeamBalancer::call_teams(siz num, char team)
 {
-	rcon.call("chat ^3PLEASE BALANCE THE TEAMS!!");
+	rcon.call("chat " + prefix + "PLEASE BALANCE THE TEAMS" + suffix);
 	log("call_teams    : " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
 
 void TeamBalancer::request_player(siz num, char team)
 {
-	rcon.call("chat " + g.players[num].name + " ^3PLEASE CHANGE TEAMS!!");
+	rcon.call("chat " + prefix + g.players[num].name + " ^7PLEASE CHANGE TEAMS!" + suffix);
 	log("request_player: " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
@@ -265,7 +288,7 @@ void TeamBalancer::request_player(siz num, char team)
 void TeamBalancer::putteam(siz num, char team)
 {
 	// TODO: Uncomment rcon calls when logging shows the system is working
-	rcon.call("chat ^3SORRY " + g.players[num].name + " BUT THE TEAMS NEED BALANCING");
+	rcon.call("chat " + prefix + "^7SORRY " + g.players[num].name + " ^7BUT THE TEAMS NEED BALANCING" + suffix);
 //	rcon.call("chat !putteam " + num + " " + team);
 	log("putteam       : " << num << " " << g.players[num].name);
 	actions.clear(); // reset all players

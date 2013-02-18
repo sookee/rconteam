@@ -57,12 +57,12 @@ bool TeamPolicy::action(const game& g, siz& num, char& t)
  */
 bool LIFOTeamPolicy::balance(const game& g, const team& from, const team& to, siz& num)
 {
-	time_t last_time = time_t(-1);
+	time_t last_time = time_t(0);
 	siz last_num = 0;
 	bool found = false;
 	for(const siz& this_num: from)
 	{
-		if(g.players.at(this_num).joined < last_time)
+		if(g.players.at(this_num).joined > last_time)
 		{
 			last_time = g.players.at(this_num).joined;
 			last_num = this_num;
