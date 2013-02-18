@@ -29,14 +29,14 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+//#include <cmath>
+
 #include "TeamPolicy.h"
 #include "types.h"
 
-#include <cmath>
-
 namespace oa {
 
-bool TeamPolicy::action(const game& g, str& guid, char& t)
+bool TeamPolicy::action(const game& g, siz& num, char& t)
 {
 	if(std::abs(int(g.B.size()) - int(g.R.size())) < 2)
 		return false; // ballanced
@@ -44,7 +44,7 @@ bool TeamPolicy::action(const game& g, str& guid, char& t)
 	const team& to = g.B.size() < g.R.size() ? g.B : g.R;
 	const team& from = g.R.size() < g.B.size() ? g.B : g.R;
 
-	if(!balance(g, from, to, guid))
+	if(!balance(g, from, to, num))
 		return false;
 	t = g.B.size() < g.R.size() ? 'B' : 'R';
 	return true;
@@ -55,28 +55,23 @@ bool TeamPolicy::action(const game& g, str& guid, char& t)
  * last person to join first.
  * @param g
  */
-bool LIFOTeamPolicy::balance(const game& g, const team& from, const team& to, str& guid)
+bool LIFOTeamPolicy::balance(const game& g, const team& from, const team& to, siz& num)
 {
 	time_t last_time = time_t(-1);
-	str last_guid;
-
-	for(const str& this_guid: from)
+	siz last_num = 0;
+	bool found = false;
+	for(const siz& this_num: from)
 	{
-		if(g.players.at(this_guid).joined < last_time)
+		if(g.players.at(this_num).joined < last_time)
 		{
-			last_time = g.players.at(this_guid).joined;
-			last_guid = this_guid;
+			last_time = g.players.at(this_num).joined;
+			last_num = this_num;
+			found = true;
 		}
 	}
 
-	if(last_guid.empty())
-	{
-		// should never happen
-		return false;
-	}
-
-	guid = last_guid;
-	return true;
+	num = last_num;
+	return found;
 }
 
 /**
@@ -84,7 +79,7 @@ bool LIFOTeamPolicy::balance(const game& g, const team& from, const team& to, st
  * last the most appropriately skilled person.
  * @param g
  */
-bool SkillTeamPolicy::balance(const game& g, const team& from, const team& to, str& guid)
+bool SkillTeamPolicy::balance(const game& g, const team& from, const team& to, siz& num)
 {
 	if(std::abs(int(g.B.size()) - int(g.R.size())) < 2)
 		return false; // ballanced

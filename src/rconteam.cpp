@@ -29,15 +29,25 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+#include <thread>
+#include <chrono>
+
 #include "log.h"
+#include "str.h"
 #include "rcon.h"
 #include "types.h"
 #include "TeamPolicy.h"
 
-#include <thread>
-#include <chrono>
-
 using namespace oa;
+
+siz get_last_field(const str& line, str& val, char delim = ' ')
+{
+	val.clear();
+	siz pos = line.size() - 1;
+	while(pos != str::npos && line[pos] != delim)
+		val.insert(0, 1, line[pos--]);
+	return pos;
+}
 
 class TeamBalancer
 {
@@ -57,9 +67,9 @@ private:
 	typedef std::map<str, siz> action_map;
 	action_map actions;
 
-	void call_teams(const str& guid, char team);
-	void request_player(const str& guid, char team);
-	void putteam(const str& guid, char team);
+	void call_teams(siz num, char team);
+	void request_player(siz num, char team);
+	void putteam(siz num, char team);
 
 public:
 
@@ -75,9 +85,9 @@ public:
 	{
 		// TODO: Use rcon() to populate the game object
 		//
-		// That means populating the player map {guid -> player} with
+		// That means populating the player map {num -> player} with
 		// all the players found on the server and populating the teams
-		// R,B and S with the guids if players on RED, BLUE or SPEC respectively.
+		// R,B and S with the nums if players on RED, BLUE or SPEC respectively.
 		//
 		// USE:
 		//      str response;
@@ -86,7 +96,7 @@ public:
 		//
 		//      // parse response here for player info
 		//
-		//      // ALSO will need this to get guids
+		//      // ALSO will need this to get nums
 		//
 		//      if(!rcon("!listplayers", response))
 		//          return false;
@@ -95,21 +105,103 @@ public:
 
 		// GET guid's/names
 
+		g.R.clear();
+		g.B.clear();
+		g.S.clear();
+		g.players.clear();
+
 		str response;
 		if(!rcon.call("!listplayers", response))
 			return false;
 
+		// !listplayers: 4 players connected:
+		//  0 B 0   Unknown Player (*)   Ayumi
+		//  1 R 0   Unknown Player (*)   Skelebot
+		//  2 R 0   Unknown Player (*)   Major
+		//  4 B 0   Unknown Player (*)   Skelebot
+
+		str line;
+		siss iss(response);
+		sgl(iss, line);
+		while(sgl(iss, line))
+		{
+			str team, guid, skip;
+			siz num;
+
+			if(!sgl(sgl(siss(line) >> num >> team, skip, '('), guid, ')'))
+			{
+				log("ERROR: parsing !listplayers: " << line);
+				return false;
+			}
+
+//			if(guid == "*") // bots present abort
+//				return false;
+
+			g.players[num].num = num;
+			g.players[num].guid = guid;
+
+			if(team == "R")
+				g.R.insert(num);
+			else if(team == "B")
+				g.B.insert(num);
+			else if(team == "S")
+				g.S.insert(num);
+		}
 		// parse this info
-		con(response);
+//		con(response);
 
 		// GET teams/scores - neet to match to guids/names
 
 		if(!rcon.call("status", response))
 			return false;
 
-		// parse this info
-		con(response);
+		// map: oasago2
+		// num score ping name            lastmsg address               qport rate
+		// --- ----- ---- --------------- ------- --------------------- ----- -----
+		//   0    27    0 Ayumi^7              50 bot                       0 16384
+		//   1    37    0 Skelebot^7           50 bot                       0 16384
+		//   2    56    0 Major^7             100 bot                    4769 16384
+		//   4    30    0 Skelebot^7          100 bot                      96 16384
 
+		iss.clear();
+		iss.str(response);
+
+		while(sgl(iss, line) && !trim(line).empty() && line[0] != '-')
+			if(!line.find("map:") && line.size() > 5)
+				g.map = line.substr(5);
+
+//		str prev_line[2]; // TODO: DEBUG LINE
+		while(sgl(iss, line) && !trim(line).empty())
+		{
+//			player p;
+			siz num, score, ping;
+			str skip, ip;
+
+			siz pos = get_last_field(line, skip);
+			while(pos != str::npos && line[pos] == ' ') --pos;
+			if(pos != str::npos)
+				pos = get_last_field(line.substr(0, pos + 1), skip);
+			while(pos != str::npos && line[pos] == ' ') --pos;
+			if(pos != str::npos)
+				pos = get_last_field(line.substr(0, pos + 1), ip);
+			while(pos != str::npos && line[pos] == ' ') --pos;
+			if(pos != str::npos)
+				pos = get_last_field(line.substr(0, pos + 1), skip);
+			while(pos != str::npos && line[pos] == ' ') --pos;
+			std::istringstream iss(line.substr(0, pos + 1));
+
+//			if(ip == "bot") // bots present abort
+//				return false;
+
+			if(!(iss >> num >> score >> ping).ignore())
+				continue;
+
+			str name; // can be empty, if so keep name from !listplayers
+			sgl(iss, name);
+
+			g.players[num].score = score;
+			g.players[num].name = name;
+		}
 		return true;
 	}
 
@@ -158,16 +250,16 @@ public:
 			select_policy();
 
 			// implement team chages using rcon
-			str guid;
+			siz num;
 			char team;
-			if(policy.get() && policy->action(g, guid, team))
+			if(policy.get() && policy->action(g, num, team))
 			{
-				if(actions[guid + team] == ACT_CALL_TEAMS)
-					call_teams(guid, team);
-				else if(actions[guid + team] == ACT_REQUEST_PLAYER)
-					request_player(guid, team);
-				else if(actions[guid + team] == ACT_PUTTEAM)
-					putteam(guid, team);
+				if(actions[std::to_string(num) + team] == ACT_CALL_TEAMS)
+					call_teams(num, team);
+				else if(actions[std::to_string(num) + team] == ACT_REQUEST_PLAYER)
+					request_player(num, team);
+				else if(actions[std::to_string(num) + team] == ACT_PUTTEAM)
+					putteam(num, team);
 			}
 
 			// sleep for a bit
@@ -176,25 +268,25 @@ public:
 	}
 };
 
-void TeamBalancer::call_teams(const str& guid, char team)
+void TeamBalancer::call_teams(siz num, char team)
 {
 	// rcon chat "teams!!"
 	rcon.call("chat ^3PLEASE BALANCE THE TEAMS!!");
-	++actions[guid + team]; // escalate
+	++actions[std::to_string(num) + team]; // escalate
 }
 
-void TeamBalancer::request_player(const str& guid, char team)
+void TeamBalancer::request_player(siz num, char team)
 {
-	// rcon chat players[guid].name please change to
-	rcon.call("chat " + g.players[guid].name + " ^3PLEASE CHANGE TEAMS!!");
-	++actions[guid + team]; // escalate
+	// rcon chat players[num].name please change to
+	rcon.call("chat " + g.players[num].name + " ^3PLEASE CHANGE TEAMS!!");
+	++actions[std::to_string(num) + team]; // escalate
 }
 
-void TeamBalancer::putteam(const str& guid, char team)
+void TeamBalancer::putteam(siz num, char team)
 {
 	// rcon !putteam
-	rcon.call("chat ^3SORRY " + g.players[guid].name + " BUT THE TEAMS NEED BALANCING");
-	//rcon.call("chat !putteam " + guid + " " + team);
+	rcon.call("chat ^3SORRY " + g.players[num].name + " BUT THE TEAMS NEED BALANCING");
+	//rcon.call("chat !putteam " + num + " " + team);
 	actions.clear(); // reset all players
 }
 
@@ -218,6 +310,9 @@ int main(int argc, char* argv[])
 	str pass = argv[3];
 
 	RCon rcon(host, port, pass);
+
+	// TODO: Check using rcon if server is running CTF game
+
 	TeamBalancer tb(rcon);
 	tb.run();
 }

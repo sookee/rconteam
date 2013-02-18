@@ -48,8 +48,6 @@ std::ostream& botlog(std::ostream* os = 0)
 
 #define log(m) do{oa::botlog() << oa::get_stamp() << ": " << m << std::endl;}while(false)
 
-int rand_int(int low, int high);
-
 // Console output
 #define con(m) do{std::cout << m << std::endl;}while(false)
 

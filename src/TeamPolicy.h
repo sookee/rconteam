@@ -1,6 +1,6 @@
 #pragma once
-#ifndef TEAMPOLICY_H_
-#define TEAMPOLICY_H_
+#ifndef _OA_TEAMPOLICY_H_
+#define _OA_TEAMPOLICY_H_
 
 /*
  * TeamPolicy.h
@@ -33,10 +33,10 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
+#include <memory>
+
 #include "rcon.h"
 #include "types.h"
-
-#include <memory>
 
 namespace oa {
 
@@ -49,7 +49,7 @@ private:
 public:
 	virtual ~TeamPolicy() {}
 
-	bool action(const game& g, str& guid, char& team);
+	bool action(const game& g, siz& num, char& team);
 
 	/**
 	 * Policy name
@@ -62,11 +62,11 @@ public:
 	 * This function will be called repeatedly to discover
 	 * a balancing action if necessary.
 	 * @param g The game to be balanced.
-	 * @param guid Output the guid of the player to be moved.
+	 * @param num Output the num of the player to be moved.
 	 * @return true if a balancing recommendation has been made else false.
-	 * The return parameter guid conteain the resommendation.
+	 * The return parameter num conteain the resommendation.
 	 */
-	virtual bool balance(const game& g, const team& from, const team& to, str& guid) = 0;
+	virtual bool balance(const game& g, const team& from, const team& to, siz& num) = 0;
 
 	/**
 	 * Factory funstion for selecting policies
@@ -82,7 +82,7 @@ class LIFOTeamPolicy
 {
 public:
 	str name() const { return "FIFO"; }
-	virtual bool balance(const game& g, const team& from, const team& to, str& guid);
+	virtual bool balance(const game& g, const team& from, const team& to, siz& num);
 
 };
 
@@ -91,10 +91,10 @@ class SkillTeamPolicy
 {
 public:
 	str name() const { return "SKILL"; }
-	virtual bool balance(const game& g, const team& from, const team& to, str& guid);
+	virtual bool balance(const game& g, const team& from, const team& to, siz& num);
 
 };
 
 } // oa
 
-#endif /* TEAMPOLICY_H_ */
+#endif /* _OA_TEAMPOLICY_H_ */

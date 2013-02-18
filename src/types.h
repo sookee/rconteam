@@ -40,6 +40,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <mutex>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 namespace oa {
 
@@ -49,6 +50,10 @@ typedef std::size_t siz;
 
 // containers
 typedef std::set<str> str_set;
+typedef std::vector<str> str_vec;
+
+typedef std::set<siz> siz_set;
+typedef std::vector<siz> siz_vec;
 
 // time
 typedef std::chrono::steady_clock st_clk;
@@ -87,36 +92,44 @@ std::istream& sgl(std::istream&& is, str& s, char d = '\n')
 // project types
 struct player
 {
-	str guid;
+	siz num; // slot
 	siz score;
+	siz ping;
 	str name;
+	str guid;
+	char team;
 	std::time_t joined;
 };
 
-typedef str_set team; // contains guids
+typedef siz_set team; // contains guids
 
 struct game
 {
+	str map;
+
 	// guids
 	team R;
 	team B;
 	team S;
 
-	std::map<str, player> players; // guid -> player
+	std::map<siz, player> players; // num -> player
 
 	void dump(std::ostream& os)
 	{
 		os << "red:\n";
-		for(const str& guid: R)
-			os << '\t' << players[guid].name << " has " << players[guid].score << " points." << '\n';
+		for(const siz& num: R)
+			os << '\t' << players[num].guid << ' ' << players[num].name
+				<< " has " << players[num].score << " points." << '\n';
 
 		os << "blue:\n";
-		for(const str& guid: B)
-			os << '\t' << players[guid].name << " has " << players[guid].score << " points." << '\n';
+		for(const siz& num: B)
+			os << '\t' << players[num].guid << ' ' << players[num].name
+				<< " has " << players[num].score << " points." << '\n';
 
 		os << "spec:\n";
-		for(const str& guid: S)
-			os << '\t' << players[guid].name << " has " << players[guid].score << " points." << '\n';
+		for(const siz& num: S)
+			os << '\t' << players[num].guid << ' ' << players[num].name
+				<< " is speccing." << '\n';
 	}
 };
 
