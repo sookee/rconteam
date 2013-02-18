@@ -81,14 +81,8 @@ bool LIFOTeamPolicy::balance(const game& g, const team& from, const team& to, si
  */
 bool SkillTeamPolicy::balance(const game& g, const team& from, const team& to, siz& num)
 {
-	if(std::abs(int(g.B.size()) - int(g.R.size())) < 2)
-		return false; // ballanced
-
 	bool changed = false;
-	while(from.size() - to.size() > 1)
-	{
-//		changed = true;
-	}
+	// TODO: Implement this
 	return changed;
 }
 

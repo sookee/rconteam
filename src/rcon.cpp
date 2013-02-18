@@ -45,10 +45,11 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "log.h"
 #include "types.h"
+#include "rcon.h"
 
 namespace oa {
 
-bool rcon(const str& host, int port, const str& cmd, str& res)
+bool RCon::rcon(const str& host, int port, const str& cmd, str& res) const
 {
 	// One mutex per server:port to ensure that all threads
 	// accessing the same server:port pause for a minimum time

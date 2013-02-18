@@ -35,6 +35,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <memory>
 
+#include "log.h"
 #include "rcon.h"
 #include "types.h"
 #include "TeamPolicy.h"
@@ -48,6 +49,9 @@ private:
 	static const str suffix;
 
 	bool done = false;
+	bool enforcing = false;
+	bool verbose = false;
+	bool testing = false;
 
 	const RCon rcon;
 	TeamPolicySPtr policy;
@@ -66,8 +70,34 @@ private:
 	void request_player(siz num, char team);
 	void putteam(siz num, char team);
 
-public:
+	void chat(const str& text);
 
+	template<typename T>
+	void rconset(const str& cvar, T& val)
+	{
+		str response;
+		if(!rcon.call(cvar, response))
+		{
+			log("WARN: rconset failure: " << cvar);
+			return;
+		}
+
+		// Possible responses:
+		// -> unknown command: <var>
+		// -> "<var>" is:"<val>^7", the default
+
+		str sval;
+
+		if(response.find("unknown command:"))
+		{
+			str skip;
+			if(!sgl(sgl(siss(response), skip, ':').ignore(), sval, '^'))
+				log("ERROR: parsing policy response: " << response);
+		}
+		siss(sval) >> val;
+	}
+
+public:
 	TeamBalancer(const RCon& rcon)
 	: rcon(rcon), policy(TeamPolicy::create()) {}
 

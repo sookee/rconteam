@@ -36,13 +36,13 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
-bool rcon(const str& host, int port, const str& cmd, str& res);
-
 class RCon
 {
 	const str host;
 	const siz port;
 	const str pass;
+
+	bool rcon(const str& host, int port, const str& cmd, str& res) const;
 
 public:
 	RCon(const str& host, siz port, const str& pass)

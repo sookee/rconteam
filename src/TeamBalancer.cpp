@@ -47,6 +47,11 @@ siz get_last_field(const str& line, str& val, char delim = ' ')
 	return pos;
 }
 
+void TeamBalancer::chat(const str& text)
+{
+	rcon.call("chat " + prefix + text + suffix);
+}
+
 bool TeamBalancer::get_snapshot()
 {
 	// GET guid's
@@ -76,19 +81,19 @@ bool TeamBalancer::get_snapshot()
 		str team, guid, skip;
 		siz num;
 
-		if(!sgl(sgl(siss(line) >> num >> team, skip, '('), guid, ')'))
+		if(!sgl(sgl(siss(line) >> num >> team, skip, '*'), guid, ')'))
 		{
 			log("ERROR: parsing !listplayers: " << line);
 			return false;
 		}
 
-//			if(guid == "*") // bots present abort
+//			if(guid.empry) // bots present abort
 //				return false;
 
 		g.players[num].num = num;
 		g.players[num].guid = guid;
 
-		if(team == "R")
+		if(team == "R" && (!testing || !guid.empty())) // only count blue team bots for testing
 		{
 			g.R.insert(num);
 			// Did we just join the game?
@@ -166,44 +171,44 @@ bool TeamBalancer::get_snapshot()
 }
 
 /**
- * Query the server over rcon for the value of the cvar 'rconteam_policy'
- * and select the appropriate TeamPolicy inplementation accordingly.
+ * Query the server over rcon for the value of various cvars
+ * and select the appropriate TeamPolicy inplementation and
+ * set various policy control values.
  */
 void TeamBalancer::select_policy()
 {
-	str response;
-	if(!rcon.call("rconteam_policy", response))
+	str val;
+
+	rconset("rconteam_policy", val);
+	if(!policy.get() || val != policy->name())
 	{
-		log("WARN: rcon failure");
-		return;
+		chat("Chanding policy to: ^1" + val);
+		policy = TeamPolicy::create(val);
 	}
 
-	// Possible responses:
-	// -> unknown command: rconteam_policy
-	// -> "rconteam_policy" is:"FIFO^7", the default
+	bool old = enforcing;
+	rconset("rconteam_enforcing", enforcing);
+	if(enforcing != old)
+		chat("Changing policy to " + str(enforcing?"^1ENFORCING":"^2NON-ENFORCING"));
 
-	str policy_name;
-
-	if(response.find("unknown command:"))
-	{
-		str skip;
-		if(!sgl(sgl(siss(response), skip, ':').ignore(), policy_name, '^'))
-			log("ERROR: parsing policy response: " << response);
-	}
-
-	con("pol: " << policy_name);
-
-	if(!policy.get() || policy_name != policy->name())
-		policy = TeamPolicy::create(policy_name);
+	old = testing;
+	rconset("rconteam_testing", testing);
+	if(testing != old)
+		chat("Changing policy to " + str(testing?"^2TESTING":"^1LIVE"));
 }
 
 void TeamBalancer::run()
 {
-	rcon.call("chat " + prefix + "RCONTEAM System online: v0.1-beta" + suffix);
+	chat("RCONTEAM System online: v0.1-beta");
+	if(enforcing)
+		chat("RCONTEAM System is ^1ENFORCING");
+	if(testing)
+		chat("RCONTEAM System is ^2TESTING");
 
 	while(!done)
 	{
-//			rcon.call("chat " + prefix + "Analizing Teams" + suffix);
+		if(verbose)
+			chat("Analizing Teams");
 		// update game snapshot from rcon
 		get_snapshot();
 		g.dump(std::cout); // for now
@@ -231,28 +236,33 @@ void TeamBalancer::run()
 
 void TeamBalancer::call_teams(siz num, char team)
 {
-	rcon.call("chat " + prefix + "PLEASE BALANCE THE TEAMS" + suffix);
+	chat("PLEASE BALANCE THE TEAMS");
 	log("call_teams    : " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
 
 void TeamBalancer::request_player(siz num, char team)
 {
-	rcon.call("chat " + prefix + g.players[num].name + " ^7PLEASE CHANGE TEAMS!" + suffix);
+	chat(g.players[num].name + " ^7PLEASE CHANGE TEAMS!");
 	log("request_player: " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
 
 void TeamBalancer::putteam(siz num, char team)
 {
-	// TODO: Uncomment rcon calls when logging shows the system is working
-	rcon.call("chat " + prefix + "^7SORRY " + g.players[num].name + " ^7BUT THE TEAMS NEED BALANCING" + suffix);
-//	rcon.call("chat !putteam " + num + " " + team);
+	chat("^7SORRY " + g.players[num].name + " ^7BUT THE TEAMS NEED BALANCING");
+	if(enforcing)
+	{
+		rcon.call("!putteam " + std::to_string(num) + " " + team);
+		chat(g.players[num].name + " : THIS WAS AN AUTOMATED ACTION");
+	}
 	log("putteam       : " << num << " " << g.players[num].name);
 	actions.clear(); // reset all players
 }
 
-const str TeamBalancer::prefix = "^3^7TEAM^3^7";
-const str TeamBalancer::suffix = "^3";
+//const str TeamBalancer::prefix = "^3^7TEAM^3^7";
+//const str TeamBalancer::suffix = "^3";
+const str TeamBalancer::prefix = "^3=[^7TEAM^3]==(^7";
+const str TeamBalancer::suffix = "^3)";
 
 } // oa
