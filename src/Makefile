@@ -7,8 +7,8 @@ DEBUGFLAGS = \
 	-g3
 
 RELEASEFLAGS = \
-	-O0 \
-	-g3
+	-O3 \
+	-g0
 
 GENERALFLAGS = \
 	-D _GLIBCXX_USE_NANOSLEEP \
@@ -29,11 +29,11 @@ OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))
 
 all: rconteam
 
-%.o: %.c $(DEPS)
-	$(CXX) -c -o $@ $< $(CXXFLAGS)
-
 rconteam: $(OBJECTS) 
 	$(CXX) -o rconteam $(OBJECTS)
+
+%.o: %.c $(DEPS)
+	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 clean:
 	rm -fr $(OBJECTS) rconteam 
