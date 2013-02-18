@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<dbhostname>localhost</dbhostname>
+	<dbname>name of the database</dbname>
+	<dbport>3306</dbport>
+	<dblogin>skivvy</dblogin>
+	<dbpassword>123</dppassword>
