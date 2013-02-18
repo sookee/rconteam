@@ -83,27 +83,7 @@ public:
 	 */
 	bool get_snapshot()
 	{
-		// TODO: Use rcon() to populate the game object
-		//
-		// That means populating the player map {num -> player} with
-		// all the players found on the server and populating the teams
-		// R,B and S with the nums if players on RED, BLUE or SPEC respectively.
-		//
-		// USE:
-		//      str response;
-		//      if(!rcon("status", response))
-		//          return false;
-		//
-		//      // parse response here for player info
-		//
-		//      // ALSO will need this to get nums
-		//
-		//      if(!rcon("!listplayers", response))
-		//          return false;
-		//
-		//      // parse response here for player info
-
-		// GET guid's/names
+		// GET guid's
 
 		g.R.clear();
 		g.B.clear();
@@ -150,7 +130,7 @@ public:
 		// parse this info
 //		con(response);
 
-		// GET teams/scores - neet to match to guids/names
+		// GET teams/scores/names - neet to match to guids/names
 
 		if(!rcon.call("status", response))
 			return false;
@@ -272,6 +252,7 @@ void TeamBalancer::call_teams(siz num, char team)
 {
 	// rcon chat "teams!!"
 	rcon.call("chat ^3PLEASE BALANCE THE TEAMS!!");
+	log("call_teams    : " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
 
@@ -279,13 +260,15 @@ void TeamBalancer::request_player(siz num, char team)
 {
 	// rcon chat players[num].name please change to
 	rcon.call("chat " + g.players[num].name + " ^3PLEASE CHANGE TEAMS!!");
+	log("request_player: " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
 
 void TeamBalancer::putteam(siz num, char team)
 {
 	// rcon !putteam
-	rcon.call("chat ^3SORRY " + g.players[num].name + " BUT THE TEAMS NEED BALANCING");
+//	rcon.call("chat ^3SORRY " + g.players[num].name + " BUT THE TEAMS NEED BALANCING");
+	log("putteam       : " << num << " " << g.players[num].name);
 	//rcon.call("chat !putteam " + num + " " + team);
 	actions.clear(); // reset all players
 }
@@ -311,7 +294,7 @@ int main(int argc, char* argv[])
 
 	RCon rcon(host, port, pass);
 
-	// TODO: Check using rcon if server is running CTF game
+	// TODO: Check using rcon if server is running CTF game (gametype = 4?)
 
 	TeamBalancer tb(rcon);
 	tb.run();
