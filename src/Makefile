@@ -1,15 +1,27 @@
-CC = g++
-CXXFLAGS = \
-	-D _GLIBCXX_USE_NANOSLEEP \
-	-D _GLIBCXX_USE_SCHED_YIELD \
+
+DEBUGFLAGS = \
+	-D _GLIBCXX_DEBUG \
+	-D _GLIBCXX_DEBUG_PEDANTIC \
 	-D DEBUG \
-	-pthread \
-	-std=c++11\
-	-Wall\
-	-Werror\
 	-O0 \
 	-g3
 
+RELEASEFLAGS = \
+	-O0 \
+	-g3
+
+GENERALFLAGS = \
+	-D _GLIBCXX_USE_NANOSLEEP \
+	-D _GLIBCXX_USE_SCHED_YIELD \
+	-pthread \
+	-std=c++11 \
+	-Wall \
+	-Werror
+
+CXXFLAGS = \
+	$(GENERALFLAGS) \
+	$(DEBUGFLAGS)
+	
 CXX = g++
 DEPS := $(wildcard *.h)
 SOURCES := $(wildcard *.cpp)
