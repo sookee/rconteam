@@ -21,6 +21,6 @@ Various cvars affect the running of the program.
 
 There are:
 
-rconteam_policy    = "LIFO" | "SKILL" // SKILL is not yet implemented
-rconteam_enforcing = 1 | 0            // 1 -> force team change using !putteam
-
+rconteam_policy      = "LIFO" | "SKILL" // SKILL is not yet implemented
+rconteam_enforcing   = 1 | 0            // 1 -> force team change using !putteam
+rconteam_ignore_bots = 0 | 1            // don't count bots at all

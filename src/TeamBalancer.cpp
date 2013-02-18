@@ -58,10 +58,7 @@ bool TeamBalancer::get_snapshot()
 
 	game old_g = g; // previous state
 
-	g.R.clear();
-	g.B.clear();
-	g.S.clear();
-	g.players.clear();
+	g.clear();
 
 	str response;
 	if(!rcon.call("!listplayers", response))
@@ -87,8 +84,8 @@ bool TeamBalancer::get_snapshot()
 			return false;
 		}
 
-//			if(guid.empry) // bots present abort
-//				return false;
+			if(guid.empty() && ignore_bots)
+				continue;
 
 		g.players[num].num = num;
 		g.players[num].guid = guid;
@@ -112,8 +109,6 @@ bool TeamBalancer::get_snapshot()
 			g.S.insert(num);
 		}
 	}
-	// parse this info
-//		con(response);
 
 	// GET teams/scores/names - neet to match to guids/names
 
@@ -135,10 +130,8 @@ bool TeamBalancer::get_snapshot()
 		if(!line.find("map:") && line.size() > 5)
 			g.map = line.substr(5);
 
-//		str prev_line[2]; // TODO: DEBUG LINE
 	while(sgl(iss, line) && !trim(line).empty())
 	{
-//			player p;
 		siz num, score, ping;
 		str skip, ip;
 
@@ -155,8 +148,8 @@ bool TeamBalancer::get_snapshot()
 		while(pos != str::npos && line[pos] == ' ') --pos;
 		std::istringstream iss(line.substr(0, pos + 1));
 
-//			if(ip == "bot") // bots present abort
-//				return false;
+			if(ip == "bot" && ignore_bots)
+				continue;
 
 		if(!(iss >> num >> score >> ping).ignore())
 			continue;

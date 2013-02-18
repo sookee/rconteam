@@ -109,12 +109,21 @@ struct game
 {
 	str map;
 
-	// guids
+	// nums (slot)
 	team R;
 	team B;
 	team S;
 
 	std::map<siz, player> players; // num -> player
+
+	void clear()
+	{
+		map.clear();
+		R.clear();
+		B.clear();
+		S.clear();
+		players.clear();
+	}
 
 	void dump(std::ostream& os)
 	{

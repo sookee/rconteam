@@ -52,6 +52,7 @@ private:
 	bool enforcing = false;
 	bool verbose = false;
 	bool testing = false;
+	bool ignore_bots = false;
 
 	const RCon rcon;
 	TeamPolicySPtr policy;
