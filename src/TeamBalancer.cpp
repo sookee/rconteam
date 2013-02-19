@@ -101,21 +101,18 @@ bool TeamBalancer::get_snapshot()
 		g.players[num].num = num;
 		g.players[num].guid = guid;
 
+		// Did we just join the game?
+		bool joined_game = !old_g.R.count(num) && !old_g.B.count(num);
+
 		if(team == "R" && (!testing || !guid.empty())) // only count blue team bots for testing
 		{
-			g.R.insert(num);
-			// Did we just join the game?
-			if(!old_g.R.count(num) && !old_g.B.count(num))
+			if(g.R.insert(num).second  && (old_g.B.count(num) || joined_game))
 				g.players[num].joined = std::time(0);
-
 		}
 		else if(team == "B")
 		{
-			g.B.insert(num);
-			// Did we just join the game?
-			if(!old_g.R.count(num) && !old_g.B.count(num))
+			if(g.B.insert(num).second && (old_g.R.count(num) || joined_game))
 				g.players[num].joined = std::time(0);
-
 		}
 		else if(team == "S")
 		{
