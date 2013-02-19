@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _OA_TEAMPOLICY_H_
-#define _OA_TEAMPOLICY_H_
+#ifndef _OA_TEAMPOLICY_H__
+#define _OA_TEAMPOLICY_H__
 
 /*
  * TeamPolicy.h
@@ -75,13 +75,24 @@ public:
 	 */
 	static TeamPolicySPtr create(const str& type = "");
 
+	/**
+	 * Get a str_set of available policy names.
+	 * @return An str_set of available policies.
+	 */
+	static str_set get_policy_names();
+
+	/**
+	 * Get the default policy name.
+	 * @return The default policy name
+	 */
+	static str get_default_policy_name();
 };
 
 class LIFOTeamPolicy
 : public TeamPolicy
 {
 public:
-	str name() const { return "FIFO"; }
+	virtual str name() const;
 	virtual bool balance(const game& g, const team& from, const team& to, siz& num);
 
 };
@@ -90,11 +101,11 @@ class SkillTeamPolicy
 : public TeamPolicy
 {
 public:
-	str name() const { return "SKILL"; }
+	virtual str name() const;
 	virtual bool balance(const game& g, const team& from, const team& to, siz& num);
 
 };
 
 } // oa
 
-#endif /* _OA_TEAMPOLICY_H_ */
+#endif /* _OA_TEAMPOLICY_H__ */

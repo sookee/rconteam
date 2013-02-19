@@ -22,7 +22,6 @@ CXXFLAGS = \
 	$(GENERALFLAGS) \
 	$(DEBUGFLAGS)
 	
-CXX = g++
 DEPS := $(wildcard *.h)
 SOURCES := $(wildcard *.cpp)
 OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))

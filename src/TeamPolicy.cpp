@@ -33,8 +33,41 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "TeamPolicy.h"
 #include "types.h"
+#include "log.h"
 
 namespace oa {
+
+const str POLICY_LIFO = "LIFO";
+const str POLICY_SKILL = "SKILL";
+const str POLICY_DEFAULT = POLICY_LIFO;
+
+static const std::map<str, TeamPolicySPtr> policies =
+{
+	{POLICY_LIFO, TeamPolicySPtr(new LIFOTeamPolicy)}
+	, {POLICY_SKILL, TeamPolicySPtr(new SkillTeamPolicy)}
+};
+
+str_set TeamPolicy::get_policy_names()
+{
+	str_set keys;
+	for(const auto& p: policies)
+		keys.insert(p.first);
+	return keys;
+}
+
+str TeamPolicy::get_default_policy_name()
+{
+	return POLICY_DEFAULT;
+}
+
+TeamPolicySPtr TeamPolicy::create(const str& type)
+{
+	if(policies.find(type) != policies.cend())
+		return policies.at(type);
+
+	log("WARN: Unknown team policy:" << type << ", using default");
+	return policies.at(POLICY_DEFAULT);
+}
 
 bool TeamPolicy::action(const game& g, siz& num, char& t)
 {
@@ -49,6 +82,8 @@ bool TeamPolicy::action(const game& g, siz& num, char& t)
 	t = g.B.size() < g.R.size() ? 'B' : 'R';
 	return true;
 }
+
+str LIFOTeamPolicy::name() const { return POLICY_LIFO; }
 
 /**
  * Ballance number of players by switching
@@ -74,6 +109,8 @@ bool LIFOTeamPolicy::balance(const game& g, const team& from, const team& to, si
 	return found;
 }
 
+str SkillTeamPolicy::name() const { return POLICY_SKILL; }
+
 /**
  * Ballance number of players by switching
  * last the most appropriately skilled person.
@@ -83,18 +120,8 @@ bool SkillTeamPolicy::balance(const game& g, const team& from, const team& to, s
 {
 	bool changed = false;
 	// TODO: Implement this
+	log("ERROR: This TeamPlic implement is unfinished");
 	return changed;
-}
-
-TeamPolicySPtr TeamPolicy::create(const str& type)
-{
-	if(type == "LIFO")
-		return TeamPolicySPtr(new LIFOTeamPolicy);
-	else if(type == "SKILL")
-		return TeamPolicySPtr(new SkillTeamPolicy);
-
-	// default
-	return TeamPolicySPtr(new LIFOTeamPolicy);
 }
 
 } // oa

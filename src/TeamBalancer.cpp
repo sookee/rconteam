@@ -184,12 +184,29 @@ bool TeamBalancer::get_snapshot()
 void TeamBalancer::select_policy()
 {
 	bug_func();
-	str val;
 
-	rconset("rconteam_policy", val);
-	if(!policy.get() || val != policy->name())
+	if(!policy.get())
+		policy = TeamPolicy::create(""); // default
+
+	if(!policy.get())
 	{
-		chat("Chanding policy to: ^1" + val);
+		log("ERROR: no policy");
+		return;
+	}
+
+	str val;
+	rconset("rconteam_policy", val);
+
+	const str_set policies = TeamPolicy::get_policy_names();
+	if(policies.find(val) == policies.cend())
+	{
+		log("WARN: Unknown policy: " << val);
+		val = TeamPolicy::get_default_policy_name();
+	}
+
+	if(val != policy->name())
+	{
+		chat("Chanding policy to: ^7" + val);
 		policy = TeamPolicy::create(val);
 	}
 
@@ -235,7 +252,7 @@ void TeamBalancer::run()
 		if(verbose)
 			chat("Analizing Teams");
 
-		get_snapshot(); // updages g
+		get_snapshot(); // updage g
 		g.dump(std::cout); // for testing
 
 		if(!policy.get())
