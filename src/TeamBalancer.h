@@ -59,6 +59,8 @@ private:
 
 	game g; // current snapshot
 
+	st_time_point pause;
+
 	enum
 	{
 		ACT_CALL_TEAMS, ACT_REQUEST_PLAYER, ACT_PUTTEAM
@@ -100,7 +102,9 @@ private:
 
 public:
 	TeamBalancer(const RCon& rcon)
-	: rcon(rcon), policy(TeamPolicy::create()) {}
+	: rcon(rcon), policy(TeamPolicy::create())
+	, pause(st_clk::now() + std::chrono::seconds(10))
+	{}
 
 	/**
 	 * Get the current state of the server to reflect in the game object.

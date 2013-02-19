@@ -33,6 +33,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "TeamBalancer.h"
 #include "types.h"
+#include "bug.h"
 #include "log.h"
 #include "str.h"
 
@@ -54,6 +55,7 @@ void TeamBalancer::chat(const str& text)
 
 bool TeamBalancer::get_snapshot()
 {
+	bug_func();
 	// GET guid's
 
 	game old_g = g; // previous state
@@ -63,6 +65,8 @@ bool TeamBalancer::get_snapshot()
 	str response;
 	if(!rcon.call("!listplayers", response))
 		return false;
+
+	bug_var(response);
 
 	// !listplayers: 4 players connected:
 	//  0 B 0   Unknown Player (*)   Ayumi
@@ -84,8 +88,8 @@ bool TeamBalancer::get_snapshot()
 			return false;
 		}
 
-			if(guid.empty() && ignore_bots)
-				continue;
+//			if(guid.empty() && ignore_bots)
+//				continue;
 
 		g.players[num].num = num;
 		g.players[num].guid = guid;
@@ -96,6 +100,7 @@ bool TeamBalancer::get_snapshot()
 			// Did we just join the game?
 			if(!old_g.R.count(num) && !old_g.B.count(num))
 				g.players[num].joined = std::time(0);
+
 		}
 		else if(team == "B")
 		{
@@ -103,6 +108,7 @@ bool TeamBalancer::get_snapshot()
 			// Did we just join the game?
 			if(!old_g.R.count(num) && !old_g.B.count(num))
 				g.players[num].joined = std::time(0);
+
 		}
 		else if(team == "S")
 		{
@@ -148,8 +154,8 @@ bool TeamBalancer::get_snapshot()
 		while(pos != str::npos && line[pos] == ' ') --pos;
 		std::istringstream iss(line.substr(0, pos + 1));
 
-			if(ip == "bot" && ignore_bots)
-				continue;
+//			if(ip == "bot" && ignore_bots)
+//				continue;
 
 		if(!(iss >> num >> score >> ping).ignore())
 			continue;
@@ -170,6 +176,7 @@ bool TeamBalancer::get_snapshot()
  */
 void TeamBalancer::select_policy()
 {
+	bug_func();
 	str val;
 
 	rconset("rconteam_policy", val);
@@ -192,6 +199,7 @@ void TeamBalancer::select_policy()
 
 void TeamBalancer::run()
 {
+	bug_func();
 	chat("RCONTEAM System online: v0.1-beta");
 	if(enforcing)
 		chat("RCONTEAM System is ^1ENFORCING");
@@ -207,23 +215,33 @@ void TeamBalancer::run()
 		g.dump(std::cout); // for now
 
 		// select team policy (rcon variable)
-		select_policy();
-
-		// implement team chages using rcon
-		siz num;
-		char team;
-		if(policy.get() && policy->action(g, num, team))
 		{
-			if(actions[std::to_string(num) + team] == ACT_CALL_TEAMS)
-				call_teams(num, team);
-			else if(actions[std::to_string(num) + team] == ACT_REQUEST_PLAYER)
-				request_player(num, team);
-			else if(actions[std::to_string(num) + team] == ACT_PUTTEAM)
-				putteam(num, team);
+			bug_time("select_policy()");
+			select_policy();
 		}
 
-		// sleep for a bit
-		std::this_thread::sleep_for(std::chrono::seconds(10));
+		if(!policy.get())
+			log("ERROR: no policy");
+		else
+		{
+			// implement team chages using rcon
+			siz num;
+			char team;
+			if(!policy->action(g, num, team))
+				actions.clear();
+			else
+			{
+				if(actions[std::to_string(num) + team] == ACT_CALL_TEAMS)
+					call_teams(num, team);
+				else if(actions[std::to_string(num) + team] == ACT_REQUEST_PLAYER)
+					request_player(num, team);
+				else if(actions[std::to_string(num) + team] == ACT_PUTTEAM)
+					putteam(num, team);
+			}
+		}
+
+		std::this_thread::sleep_until(pause);
+		pause += std::chrono::seconds(10);
 	}
 }
 

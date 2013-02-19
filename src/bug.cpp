@@ -41,6 +41,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <cxxabi.h>
 
 #include <memory>
+#include <chrono>
 
 namespace oa {
 
@@ -106,5 +107,19 @@ __scope__bomb__::~__scope__bomb__()
 }
 
 size_t __scope__bomb__::indent = 0;
+
+__scope__timer__::__scope__timer__(const str& label)
+: label(label)
+, start(hr_clk::now())
+{
+}
+__scope__timer__::~__scope__timer__()
+{
+	auto diff = hr_clk::now() - start;
+	auto ms = std::chrono::duration<double, std::milli>(diff).count();
+//	auto ns = std::chrono::duration<double, std::nano>(diff).count();
+	bug(ms << " ms");
+//	bug(ns << " ns");
+}
 
 } // oa

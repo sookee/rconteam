@@ -31,11 +31,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include "types.h"
 
 #include <ostream>
-#include <ctime>
+#include <chrono>
 #include <csignal>
+
+#include "types.h"
 
 namespace oa {
 
@@ -49,15 +50,25 @@ struct __scope__bomb__
 	~__scope__bomb__();
 };
 
+struct __scope__timer__
+{
+	std::string label;
+	hr_time_point start;
+	__scope__timer__(const str& label);
+	~__scope__timer__();
+};
+
 #ifndef DEBUG
 #define bug(m)
 #define bug_var(v)
 #define bug_func()
+#define bug_time(l)
 #else
 #define bug(m) do{oa::botbug() << m << std::endl;}while(false)
 #define QUOTE(s) #s
 #define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
 #define bug_func() __scope__bomb__ __scoper__(__PRETTY_FUNCTION__)
+#define bug_time(l) __scope__timer__ __scoper__(l)
 #endif
 
 } // oa

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _OA_TYPES_H_
-#define _OA_TYPES_H_
+#ifndef _OA_TYPES_H__
+#define _OA_TYPES_H__
 
 /*
  * types.h
@@ -90,6 +90,7 @@ std::istream& sgl(std::istream&& is, str& s, char d = '\n')
 }
 
 // project types
+
 struct player
 {
 	siz num; // slot
@@ -100,7 +101,7 @@ struct player
 	char team;
 	std::time_t joined;
 
-	player(): num(0), score(0), ping(0), team('S') {}
+	player(): num(0), score(0), ping(0), team('S'), joined(std::time(0)) {}
 };
 
 typedef siz_set team; // contains guids
@@ -122,20 +123,28 @@ struct game
 		R.clear();
 		B.clear();
 		S.clear();
-		players.clear();
+//		players.clear();
 	}
 
+	/**
+	 * For testing
+	 * @param os Where to send the output
+	 */
 	void dump(std::ostream& os)
 	{
 		os << "red:\n";
 		for(const siz& num: R)
 			os << '\t' << players[num].guid << ' ' << players[num].name
-				<< " has " << players[num].score << " points." << '\n';
+				<< " has " << players[num].score << " points"
+				<< " and joined at: " << players[num].joined
+				<< '\n';
 
 		os << "blue:\n";
 		for(const siz& num: B)
 			os << '\t' << players[num].guid << ' ' << players[num].name
-				<< " has " << players[num].score << " points." << '\n';
+			<< " has " << players[num].score << " points"
+			<< " and joined at: " << players[num].joined
+			<< '\n';
 
 		os << "spec:\n";
 		for(const siz& num: S)
@@ -154,7 +163,6 @@ struct dbinfo
 	str dnName;
 };
 
-
 } // oa
 
-#endif /* TEAMPOLICY_H_ */
+#endif /* TEAMPOLICY_H__ */

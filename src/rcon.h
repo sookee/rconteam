@@ -43,6 +43,7 @@ class RCon
 	const str pass;
 
 	bool rcon(const str& host, int port, const str& cmd, str& res) const;
+	bool getrcon(const str& host, siz port, const str& cmd, str& reply) const;
 
 public:
 	RCon(const str& host, siz port, const str& pass)
@@ -50,7 +51,8 @@ public:
 
 	bool call(const str& cmd, str& res) const
 	{
-		return rcon(host, port, "rcon " + pass + " " + cmd, res);
+		return getrcon(host, port, "rcon " + pass + " " + cmd, res);
+//		return rcon(host, port, "rcon " + pass + " " + cmd, res);
 	}
 
 	bool call(const str& cmd) const
