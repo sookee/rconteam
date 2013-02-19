@@ -263,8 +263,8 @@ void TeamBalancer::putteam(siz num, char team)
 {
 	if(enforcing)
 	{
-		chat("^7SORRY " + g.players[num].name + " ^7but the teams NEED balancing");
 		rcon.call("!putteam " + std::to_string(num) + " " + team);
+		chat("^7SORRY " + g.players[num].name + " ^7but the teams NEEDED balancing");
 		chat(g.players[num].name + " : This was an AUTOMATED action");
 		actions.clear(); // reset all players
 	}
