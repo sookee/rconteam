@@ -202,6 +202,15 @@ void TeamBalancer::select_policy()
 	rconset("rconteam_testing", testing);
 	if(testing != old)
 		chat("Changing policy to " + str(testing?"^2TESTING":"^1LIVE"));
+
+	static siz_set teamgames = {1, 3, 4, 5, 8, 9, 11, 12};
+
+	old = team_game;
+	siz gametype;
+	rconset("g_gametype", gametype);
+	team_game = teamgames.find(gametype) != teamgames.end();
+	if(team_game != old)
+		chat("System is active for this gametype.");
 }
 
 void TeamBalancer::run()
@@ -215,17 +224,19 @@ void TeamBalancer::run()
 
 	while(!done)
 	{
+		std::this_thread::sleep_until(pause);
+		pause += std::chrono::seconds(10);
+
+		select_policy();
+
+		if(!team_game)
+			continue;
+
 		if(verbose)
 			chat("Analizing Teams");
-		// update game snapshot from rcon
-		get_snapshot();
-		g.dump(std::cout); // for now
 
-		// select team policy (rcon variable)
-		{
-			bug_time("select_policy()");
-			select_policy();
-		}
+		get_snapshot(); // updages g
+		g.dump(std::cout); // for testing
 
 		if(!policy.get())
 			log("ERROR: no policy");
@@ -246,9 +257,6 @@ void TeamBalancer::run()
 					putteam(num, team);
 			}
 		}
-
-		std::this_thread::sleep_until(pause);
-		pause += std::chrono::seconds(10);
 	}
 }
 
@@ -274,7 +282,7 @@ void TeamBalancer::putteam(siz num, char team)
 		rcon.call("!putteam " + std::to_string(num) + " " + team);
 //		chat("^7SORRY " + g.players[num].name + " ^7but the teams NEEDED balancing");
 //		chat(g.players[num].name + " : This was an AUTOMATED action");
-		tell(num, "^7SORRY " + g.players[num].name + " ^7but the teams NEEDED balancing");
+		tell(num, "^3SORRY " + g.players[num].name + " ^3but the teams NEEDED balancing");
 		tell(num, g.players[num].name + " : This was an AUTOMATED action");
 		actions.clear(); // reset all players
 		log("putteam       : " << num << " " << g.players[num].name);
@@ -288,7 +296,7 @@ void TeamBalancer::putteam(siz num, char team)
 
 //const str TeamBalancer::prefix = "^3^7TEAM^3^7";
 //const str TeamBalancer::suffix = "^3";
-const str TeamBalancer::prefix = "^3=[^7TEAM^3]==(^7";
-const str TeamBalancer::suffix = "^3)";
+const str TeamBalancer::prefix = "^1=[^3TEAM^1]==(^3";
+const str TeamBalancer::suffix = "^1)";
 
 } // oa

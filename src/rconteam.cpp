@@ -61,9 +61,6 @@ int main(int argc, char* argv[])
 	str pass = argv[3];
 
 	RCon rcon(host, port, pass);
-
-	// TODO: Check using rcon if server is running CTF game (gametype = 4?)
-
 	TeamBalancer tb(rcon);
 	tb.run();
 }

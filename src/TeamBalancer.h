@@ -60,6 +60,7 @@ private:
 	bool verbose = false;
 	bool testing = false;
 	bool ignore_bots = false;
+	bool team_game = false; // is it a team game? g_gametype = 4..
 
 	const RCon rcon;
 	TeamPolicySPtr policy;
