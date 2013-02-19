@@ -247,28 +247,33 @@ void TeamBalancer::run()
 
 void TeamBalancer::call_teams(siz num, char team)
 {
-	chat("PLEASE BALANCE THE TEAMS");
+	chat("Please balance the teams");
 	log("call_teams    : " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
 
 void TeamBalancer::request_player(siz num, char team)
 {
-	chat(g.players[num].name + " ^7PLEASE CHANGE TEAMS!");
+	chat("Please balance the teams: " + g.players[num].name);
 	log("request_player: " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
 
 void TeamBalancer::putteam(siz num, char team)
 {
-	chat("^7SORRY " + g.players[num].name + " ^7BUT THE TEAMS NEED BALANCING");
 	if(enforcing)
 	{
+		chat("^7SORRY " + g.players[num].name + " ^7but the teams NEED balancing");
 		rcon.call("!putteam " + std::to_string(num) + " " + team);
-		chat(g.players[num].name + " : THIS WAS AN AUTOMATED ACTION");
+		chat(g.players[num].name + " : This was an AUTOMATED action");
+		actions.clear(); // reset all players
 	}
+	else
+	{
+		chat("Please balance the teams: " + g.players[num].name);
+	}
+
 	log("putteam       : " << num << " " << g.players[num].name);
-	actions.clear(); // reset all players
 }
 
 //const str TeamBalancer::prefix = "^3^7TEAM^3^7";
