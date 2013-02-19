@@ -48,9 +48,16 @@ siz get_last_field(const str& line, str& val, char delim = ' ')
 	return pos;
 }
 
-void TeamBalancer::chat(const str& text)
+void TeamBalancer::chat(const str& text) const
 {
 	rcon.call("chat " + prefix + text + suffix);
+}
+
+void TeamBalancer::tell(siz /*num*/, const str& text) const
+{
+	// TELL not working - is there a way to do this?
+	chat(text);
+//	rcon.call("tell " + std::to_string(num) + " " + prefix + text + suffix);
 }
 
 bool TeamBalancer::get_snapshot()
@@ -254,7 +261,8 @@ void TeamBalancer::call_teams(siz num, char team)
 
 void TeamBalancer::request_player(siz num, char team)
 {
-	chat("Please balance the teams: " + g.players[num].name);
+//	chat("Please balance the teams: " + g.players[num].name);
+	tell(num, "Please balance the teams: " + g.players[num].name);
 	log("request_player: " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
 }
@@ -264,16 +272,18 @@ void TeamBalancer::putteam(siz num, char team)
 	if(enforcing)
 	{
 		rcon.call("!putteam " + std::to_string(num) + " " + team);
-		chat("^7SORRY " + g.players[num].name + " ^7but the teams NEEDED balancing");
-		chat(g.players[num].name + " : This was an AUTOMATED action");
+//		chat("^7SORRY " + g.players[num].name + " ^7but the teams NEEDED balancing");
+//		chat(g.players[num].name + " : This was an AUTOMATED action");
+		tell(num, "^7SORRY " + g.players[num].name + " ^7but the teams NEEDED balancing");
+		tell(num, g.players[num].name + " : This was an AUTOMATED action");
 		actions.clear(); // reset all players
+		log("putteam       : " << num << " " << g.players[num].name);
 	}
 	else
 	{
-		chat("Please balance the teams: " + g.players[num].name);
+//		chat("Please balance the teams: " + g.players[num].name);
+		tell(num, "Please balance the teams: " + g.players[num].name);
 	}
-
-	log("putteam       : " << num << " " << g.players[num].name);
 }
 
 //const str TeamBalancer::prefix = "^3^7TEAM^3^7";

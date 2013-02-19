@@ -42,6 +42,13 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
+/**
+ * Using rcon the TeamBalancer monitors an
+ * OpenArena server and issues recommendations and/or
+ * moves players to keep the teams in balance.
+ *
+ * The team balance is determined by a TeamPolicy.
+ */
 class TeamBalancer
 {
 private:
@@ -59,6 +66,9 @@ private:
 
 	game g; // current snapshot
 
+	/**
+	 * Waiting point between game snapshots.
+	 */
 	st_time_point pause;
 
 	enum
@@ -66,15 +76,54 @@ private:
 		ACT_CALL_TEAMS, ACT_REQUEST_PLAYER, ACT_PUTTEAM
 	};
 
-	typedef std::map<str, siz> action_map;
+	/**
+	 * Keep trach of how many warnings each player has had
+	 * (by slot number <num>).
+	 */
+	typedef std::map<str, siz> action_map; // <num> -> int
 	action_map actions;
 
+	/**
+	 * General message to all players to balance teams.
+	 * @param num The player recommended to move.
+	 * @param team The recommended team for the player to join.
+	 */
 	void call_teams(siz num, char team);
+
+	/**
+	 * Message to a specific player to balance teams.
+	 * @param num The player recommended to move.
+	 * @param team The recommended team for the player to join.
+	 */
 	void request_player(siz num, char team);
+
+	/**
+	 * If policy is ENFORCING then actuall move the specific player
+	 * to the recommended team. Oterwise just request they change team.
+	 * @param num The player recommended to move.
+	 * @param team The recommended team for the player to join.
+	 */
 	void putteam(siz num, char team);
 
-	void chat(const str& text);
+	/**
+	 * Print a chat message on the console for all players to read.
+	 * @param text The text to be displayed.
+	 */
+	void chat(const str& text) const;
 
+	/**
+	 * Print a text message only on the console of the specified player.
+	 * @param num The slot number of the player to be addressed.
+	 * @param text The text to be displayed to the specified player.
+	 * TODO: Not working - simply calls chat(text);
+	 */
+	void tell(siz num, const str& text) const;
+
+	/**
+	 * Set a variable from a cvar using rcon.
+	 * @param cvar The name of the cvar whose value is wanted
+	 * @param val The variable to set to the cvar's value.
+	 */
 	template<typename T>
 	void rconset(const str& cvar, T& val)
 	{
@@ -119,6 +168,10 @@ public:
 	 */
 	void select_policy();
 
+	/**
+	 * The main processing loop. This function will not return
+	 * until done == true.
+	 */
 	void run();
 };
 
