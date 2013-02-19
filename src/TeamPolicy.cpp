@@ -97,5 +97,4 @@ TeamPolicySPtr TeamPolicy::create(const str& type)
 	return TeamPolicySPtr(new LIFOTeamPolicy);
 }
 
-
 } // oa
