@@ -159,7 +159,7 @@ struct game
 			print_duration(hr_clk::now() - players[num].joined, oss);
 			os << '\t' << players[num].guid << ' ' << players[num].name
 				<< " has " << players[num].score << " points"
-				<< " and joined at: " << oss.str()
+				<< " and joined: " << oss.str() << " ago."
 				<< '\n';
 		}
 		os << "blue:\n";
@@ -169,7 +169,7 @@ struct game
 			print_duration(hr_clk::now() - players[num].joined, oss);
 			os << '\t' << players[num].guid << ' ' << players[num].name
 			<< " has " << players[num].score << " points"
-			<< " and joined at: " << oss.str()
+			<< " and joined: " << oss.str() << " ago."
 			<< '\n';
 		}
 		os << "spec:\n";
