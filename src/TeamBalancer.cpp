@@ -107,12 +107,12 @@ bool TeamBalancer::get_snapshot()
 		if(team == "R" && (!testing || !guid.empty())) // only count blue team bots for testing
 		{
 			if(g.R.insert(num).second  && (old_g.B.count(num) || joined_game))
-				g.players[num].joined = std::time(0);
+				g.players[num].joined = hr_clk::now();
 		}
 		else if(team == "B")
 		{
 			if(g.B.insert(num).second && (old_g.R.count(num) || joined_game))
-				g.players[num].joined = std::time(0);
+				g.players[num].joined = hr_clk::now();
 		}
 		else if(team == "S")
 		{

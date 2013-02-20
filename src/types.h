@@ -99,12 +99,31 @@ struct player
 	str name;
 	str guid;
 	char team;
-	std::time_t joined;
+	hr_time_point joined;
 
-	player(): num(0), score(0), ping(0), team('S'), joined(std::time(0)) {}
+	player(): num(0), score(0), ping(0), team('S'), joined(hr_clk::now()) {}
 };
 
 typedef siz_set team; // contains guids
+
+// TODO: mve to utils.h
+template<typename Rep, typename Period>
+void print_duration(std::chrono::duration<Rep, Period> t, std::ostream& os)
+{
+	typedef std::chrono::duration<int, std::ratio<60 * 60 * 24>> days;
+
+	auto d = std::chrono::duration_cast < days > (t);
+	auto h = std::chrono::duration_cast < std::chrono::hours > (t - d);
+	auto m = std::chrono::duration_cast < std::chrono::minutes > (t - d - h);
+	auto s = std::chrono::duration_cast < std::chrono::seconds > (t - d - h - m);
+	if(t >= days(1))
+		os << d.count() << "d ";
+	if(t >= std::chrono::hours(1))
+		os << h.count() << "h ";
+	if(t >= std::chrono::minutes(1))
+		os << m.count() << "m ";
+	os << s.count() << "s";
+}
 
 struct game
 {
@@ -132,20 +151,27 @@ struct game
 	 */
 	void dump(std::ostream& os)
 	{
+		soss oss;
 		os << "red:\n";
 		for(const siz& num: R)
+		{
+			oss.str("");
+			print_duration(hr_clk::now() - players[num].joined, oss);
 			os << '\t' << players[num].guid << ' ' << players[num].name
 				<< " has " << players[num].score << " points"
-				<< " and joined at: " << players[num].joined
+				<< " and joined at: " << oss.str()
 				<< '\n';
-
+		}
 		os << "blue:\n";
 		for(const siz& num: B)
+		{
+			oss.str("");
+			print_duration(hr_clk::now() - players[num].joined, oss);
 			os << '\t' << players[num].guid << ' ' << players[num].name
 			<< " has " << players[num].score << " points"
-			<< " and joined at: " << players[num].joined
+			<< " and joined at: " << oss.str()
 			<< '\n';
-
+		}
 		os << "spec:\n";
 		for(const siz& num: S)
 			os << '\t' << players[num].guid << ' ' << players[num].name
