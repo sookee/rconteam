@@ -68,7 +68,7 @@ struct __scope__timer__
 #define QUOTE(s) #s
 #define bug_var(v) bug(QUOTE(v:) << std::boolalpha << " " << v)
 #define bug_func() __scope__bomb__ __scoper__(__PRETTY_FUNCTION__)
-#define bug_time(l) __scope__timer__ __scoper__(l)
+#define bug_time(l) __scope__timer__ __timer_l__(l)
 #endif
 
 } // oa

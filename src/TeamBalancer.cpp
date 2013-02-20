@@ -253,23 +253,32 @@ void TeamBalancer::run()
 		g.dump(std::cout); // for testing
 
 		if(!policy.get())
+		{
 			log("ERROR: no policy");
+			continue;
+		}
+
+		// implement team chages using rcon
+		siz num;
+		char team;
+		if(!policy->action(g, num, team))
+		{
+			actions.clear();
+			continue;
+		}
+
+		if(actions[std::to_string(num) + team] == ACT_CALL_TEAMS)
+			call_teams(num, team);
+		else if(actions[std::to_string(num) + team] == ACT_REQUEST_PLAYER)
+			request_player(num, team);
+		else if(actions[std::to_string(num) + team] == ACT_PUTTEAM)
+			putteam(num, team);
 		else
 		{
-			// implement team chages using rcon
-			siz num;
-			char team;
-			if(!policy->action(g, num, team))
-				actions.clear();
-			else
-			{
-				if(actions[std::to_string(num) + team] == ACT_CALL_TEAMS)
-					call_teams(num, team);
-				else if(actions[std::to_string(num) + team] == ACT_REQUEST_PLAYER)
-					request_player(num, team);
-				else if(actions[std::to_string(num) + team] == ACT_PUTTEAM)
-					putteam(num, team);
-			}
+			log("ERROR: Unknown ACTION:   Should never happen.");
+			// take reasonable action
+			actions[std::to_string(num) + team] = ACT_PUTTEAM;
+			putteam(num, team);
 		}
 	}
 }
@@ -283,7 +292,6 @@ void TeamBalancer::call_teams(siz num, char team)
 
 void TeamBalancer::request_player(siz num, char team)
 {
-//	chat("Please balance the teams: " + g.players[num].name);
 	tell(num, "Please balance the teams: " + g.players[num].name);
 	log("request_player: " << num << " " << g.players[num].name);
 	++actions[std::to_string(num) + team]; // escalate
@@ -291,26 +299,19 @@ void TeamBalancer::request_player(siz num, char team)
 
 void TeamBalancer::putteam(siz num, char team)
 {
-	if(enforcing)
+	if(!enforcing)
 	{
-		rcon.call("!putteam " + std::to_string(num) + " " + team);
-//		chat("^7SORRY " + g.players[num].name + " ^7but the teams NEEDED balancing");
-//		chat(g.players[num].name + " : This was an AUTOMATED action");
-		tell(num, "^3SORRY " + g.players[num].name + " ^3but the teams NEEDED balancing");
-		tell(num, g.players[num].name + " : This was an AUTOMATED action");
-		actions.clear(); // reset all players
-		log("putteam       : " << num << " " << g.players[num].name);
-	}
-	else
-	{
-//		chat("Please balance the teams: " + g.players[num].name);
 		tell(num, "Please balance the teams: " + g.players[num].name);
+		return;
 	}
+	rcon.call("!putteam " + std::to_string(num) + " " + team);
+	tell(num, "^3SORRY " + g.players[num].name + " ^3but the teams NEEDED balancing");
+	tell(num, g.players[num].name + " ^7:^3 This was an ^7AUTOMATED^3 action");
+	actions[std::to_string(num) + team] = 0;
+	log("putteam       : " << num << " " << g.players[num].name);
 }
 
-//const str TeamBalancer::prefix = "^3^7TEAM^3^7";
-//const str TeamBalancer::suffix = "^3";
-const str TeamBalancer::prefix = "^1=[^3TEAM^1]==(^3";
-const str TeamBalancer::suffix = "^1)";
+const str TeamBalancer::prefix = "^1-[^3TEAMS^1]-=<(^3";
+const str TeamBalancer::suffix = "^1)>=-";
 
 } // oa
