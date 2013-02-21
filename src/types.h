@@ -131,6 +131,9 @@ class team_id
 	friend class std::map<team_id, team>;
 	siz idx;
 	team_id(siz idx): idx(idx){}
+
+	static const str map;
+
 public:
 	static const team_id S;// = 0;
 	static const team_id R;// = 1;
@@ -142,6 +145,8 @@ public:
 	const team_id& operator!() const { return *this; }
 
 	operator siz() const { return idx; }
+	operator str() const { return str(1, map.at(idx)); }
+	operator char() const { return map.at(idx); }
 
 	bool operator<(const team_id& id) const { return idx < id.idx; }
 	bool operator>(const team_id& id) const { return idx > id.idx; }

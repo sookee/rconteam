@@ -35,5 +35,7 @@ const team_id team_id::S = 0;
 const team_id team_id::R = 1;
 const team_id team_id::B = 2;
 
+const str team_id::map = "SRB";
+
 } // oa
 

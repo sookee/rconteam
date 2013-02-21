@@ -35,6 +35,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include <memory>
 
+#include "bug.h"
 #include "log.h"
 #include "rcon.h"
 #include "types.h"
@@ -68,6 +69,11 @@ private:
 	game g; // current snapshot
 
 	/**
+	 * Time between pauses.
+	 */
+	std::chrono::seconds delay;
+
+	/**
 	 * Waiting point between game snapshots.
 	 */
 	st_time_point pause;
@@ -89,14 +95,14 @@ private:
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void call_teams(siz num, char team);
+	void call_teams(siz num, const team_id& team);
 
 	/**
 	 * Message to a specific player to balance teams.
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void request_player(siz num, char team);
+	void request_player(siz num, const team_id& team);
 
 	/**
 	 * If policy is ENFORCING then actuall move the specific player
@@ -104,7 +110,7 @@ private:
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void putteam(siz num, char team);
+	void putteam(siz num, const team_id& team);
 
 	/**
 	 * Print a chat message on the console for all players to read.
@@ -153,7 +159,8 @@ private:
 public:
 	TeamBalancer(const RConSPtr& rcon)
 	: rcon(rcon), policy(TeamPolicy::create())
-	, pause(st_clk::now() + std::chrono::seconds(10))
+	, delay(10)
+	, pause(st_clk::now() + delay)
 	{}
 
 	/**
@@ -174,6 +181,12 @@ public:
 	 * until done == true.
 	 */
 	void run();
+
+	void set_delay(siz secs)
+	{
+		delay = std::chrono::seconds(secs);
+		pause = st_clk::now() + delay;
+	}
 };
 
 } // oa

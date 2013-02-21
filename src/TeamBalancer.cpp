@@ -229,7 +229,7 @@ void TeamBalancer::select_policy()
 
 str key(siz num, const team_id& team)
 {
-	return std::to_string(team) + "-" + std::to_string(num);
+	return str(team) + "-" + std::to_string(num);
 }
 
 void TeamBalancer::run()
@@ -244,7 +244,7 @@ void TeamBalancer::run()
 	while(!done)
 	{
 		std::this_thread::sleep_until(pause);
-		pause += std::chrono::seconds(10);
+		pause += delay;
 
 		select_policy();
 
@@ -288,31 +288,31 @@ void TeamBalancer::run()
 	}
 }
 
-void TeamBalancer::call_teams(siz num, char team)
+void TeamBalancer::call_teams(siz num, const team_id& team)
 {
 	chat("Please balance the teams");
 	log("call_teams    : " << num << " " << g.players[num].name);
-	++actions[std::to_string(num) + team]; // escalate
+	++actions[key(num, team)]; // escalate
 }
 
-void TeamBalancer::request_player(siz num, char team)
+void TeamBalancer::request_player(siz num, const team_id& team)
 {
 	tell(num, "Please balance the teams: " + g.players[num].name);
 	log("request_player: " << num << " " << g.players[num].name);
-	++actions[std::to_string(num) + team]; // escalate
+	++actions[key(num, team)]; // escalate
 }
 
-void TeamBalancer::putteam(siz num, char team)
+void TeamBalancer::putteam(siz num, const team_id& team)
 {
 	if(!enforcing)
 	{
 		tell(num, "Please balance the teams: " + g.players[num].name);
 		return;
 	}
-	rcon->call("!putteam " + std::to_string(num) + " " + team);
+	rcon->call("!putteam " + std::to_string(num) + " " + str(team));
 	tell(num, "^3SORRY " + g.players[num].name + " ^3but the teams NEEDED balancing");
 	tell(num, g.players[num].name + " ^7:^3 This was an ^7AUTOMATED^3 action");
-	actions[std::to_string(num) + team] = 0;
+	actions[key(num, team)] = 0;
 	log("putteam       : " << num << " " << g.players[num].name);
 }
 

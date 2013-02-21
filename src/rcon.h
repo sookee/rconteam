@@ -40,6 +40,9 @@ namespace oa {
 
 class RCon
 {
+protected:
+	mutable str res;
+
 public:
 	virtual ~RCon() {}
 
@@ -47,7 +50,6 @@ public:
 
 	bool call(const str& cmd) const
 	{
-		str res;
 		return call(cmd, res);
 	}
 };
@@ -71,7 +73,7 @@ public:
 	}
 };
 
-class RConTest
+class RConStream
 : public RCon
 {
 private:
@@ -79,14 +81,14 @@ private:
 	std::ostream& o;
 
 public:
-	RConTest(std::istream& i, std::ostream& o): i(i), o(o) {}
+	RConStream(std::istream& i, std::ostream& o): i(i), o(o) {}
 
 	virtual bool call(const str& cmd, str& res) const
 	{
 		res.clear();
-		o << "rcon " + cmd << '\n';
+		o << "rcon " + cmd << std::endl;
 		str line;
-		while(sgl(i, line) && !line.empty())
+		while(&res != &this->res && sgl(i, line) && !line.empty())
 			res += line + '\n';
 		return i;
 	}

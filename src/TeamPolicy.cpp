@@ -33,6 +33,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "TeamPolicy.h"
 #include "types.h"
+#include "bug.h"
 #include "log.h"
 
 namespace oa {
@@ -100,20 +101,32 @@ bool LIFOTeamPolicy::balance(const game& g, siz& num, team_id& team)
 	const team_id& to = blues < reds ? team_id::B : team_id::R;
 	const team_id& from = reds < blues ? team_id::B : team_id::R;
 
+	bug_var(g.teams[from].size());
+	bug_var(g.teams[to].size());
+	bug_var((g.teams[from].size() - g.teams[to].size()));
+
 	if(g.teams[from].size() - g.teams[to].size() < 2)
 		return false; // balanced
 
-	hr_time_point last_time = hr_clk::now();
+	log("blance: Teams need balancing");
+
+	hr_time_point last_time;
 	siz last_num = 0;
 	bool found = false;
 	for(const siz& this_num: g.teams.at(from))
 	{
+//		soss oss;
+//		print_duration(last_time, oss);
+//		bug_var(last_time);
+//		bug_var(g.players.at(this_num).joined);
 		if(g.players.at(this_num).joined <= last_time)
 			continue;
 		last_time = g.players.at(this_num).joined;
 		last_num = this_num;
 		found = true;
 	}
+
+	bug_var(found);
 
 	team = to;
 

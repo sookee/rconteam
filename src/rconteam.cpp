@@ -52,23 +52,29 @@ int main(int argc, char* argv[])
 
 	RConSPtr rcon;
 
+	std::ifstream ifs;
+	std::ofstream ofs;
+
+	siz delay = 10;
+
 	if(str(argv[1]) == "-test")
 	{
-		std::ifstream ifs(argv[2]);
+		ifs.open(argv[2]);
 		if(!ifs)
 		{
 			con("ERROR: opening input file: " << argv[2]);
 			return -2;
 		}
 
-		std::ofstream ofs(argv[3]);
+		ofs.open(argv[3]);
 		if(!ofs)
 		{
 			con("ERROR: opening output file: " << argv[3]);
 			return -3;
 		}
 
-		rcon.reset(new RConTest(ifs, ofs));
+		rcon.reset(new RConStream(ifs, ofs));
+		delay = 2;
 	}
 	else
 	{
@@ -93,5 +99,6 @@ int main(int argc, char* argv[])
 	}
 
 	TeamBalancer tb(rcon);
+	tb.set_delay(delay);
 	tb.run();
 }
