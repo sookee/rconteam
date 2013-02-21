@@ -46,21 +46,52 @@ int main(int argc, char* argv[])
 	if(argc < 4)
 	{
 		con("usage: rconteam <host> <port> <rconpassword>");
+		con("usage: rconteam -test <input file> <output file>");
 		return -1;
 	}
 
-	siz port;
-	if(!(siss(argv[2]) >> port))
+	RConSPtr rcon;
+
+	if(str(argv[1]) == "-test")
 	{
-		con("error: bad port number: " << argv[2]);
-		con("usage: rconteam <host> <port> <rconpassword>");
-		return -2;
+		std::ifstream ifs(argv[2]);
+		if(!ifs)
+		{
+			con("ERROR: opening input file: " << argv[2]);
+			return -2;
+		}
+
+		std::ofstream ofs(argv[3]);
+		if(!ofs)
+		{
+			con("ERROR: opening output file: " << argv[3]);
+			return -3;
+		}
+
+		rcon.reset(new RConTest(ifs, ofs));
+	}
+	else
+	{
+		siz port;
+		if(!(siss(argv[2]) >> port))
+		{
+			con("error: bad port number: " << argv[2]);
+			con("usage: rconteam <host> <port> <rconpassword>");
+			return -4;
+		}
+
+		str host = argv[1];
+		str pass = argv[3];
+
+		rcon.reset(new RConImpl(host, port, pass));
 	}
 
-	str host = argv[1];
-	str pass = argv[3];
+	if(!rcon.get())
+	{
+		con("ERROR: null rcon");
+		return -5;
+	}
 
-	RCon rcon(host, port, pass);
 	TeamBalancer tb(rcon);
 	tb.run();
 }

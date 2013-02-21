@@ -41,6 +41,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <array>
 
 namespace oa {
 
@@ -125,23 +126,48 @@ void print_duration(std::chrono::duration<Rep, Period> t, std::ostream& os)
 	os << s.count() << "s";
 }
 
+class team_id
+{
+	friend class std::map<team_id, team>;
+	siz idx;
+	team_id(siz idx): idx(idx){}
+public:
+	static const team_id S;// = 0;
+	static const team_id R;// = 1;
+	static const team_id B;// = 2;
+
+	team_id(): idx(-1){}
+	team_id(const team_id& id): idx(id.idx){}
+
+	const team_id& operator!() const { return *this; }
+
+	operator siz() const { return idx; }
+
+	bool operator<(const team_id& id) const { return idx < id.idx; }
+	bool operator>(const team_id& id) const { return idx > id.idx; }
+	bool operator<=(const team_id& id) const { return idx <= id.idx; }
+	bool operator>=(const team_id& id) const { return idx >= id.idx; }
+	bool operator==(const team_id& id) const { return idx == id.idx; }
+
+	team_id& operator=(const team_id& id) { idx = id.idx; return *this; }
+};
+
+typedef std::map<team_id, team> team_map;
+
 struct game
 {
 	str map;
-
-	// nums (slot)
-	team R;
-	team B;
-	team S;
+	std::array<siz_set, 3> teams;
 
 	std::map<siz, player> players; // num -> player
+	game() {}
 
 	void clear()
 	{
 		map.clear();
-		R.clear();
-		B.clear();
-		S.clear();
+		teams[team_id::S].clear();
+		teams[team_id::R].clear();
+		teams[team_id::B].clear();
 //		players.clear();
 	}
 
@@ -153,7 +179,7 @@ struct game
 	{
 		soss oss;
 		os << "red:\n";
-		for(const siz& num: R)
+		for(const siz& num: teams[team_id::R])
 		{
 			oss.str("");
 			print_duration(hr_clk::now() - players[num].joined, oss);
@@ -163,7 +189,7 @@ struct game
 				<< '\n';
 		}
 		os << "blue:\n";
-		for(const siz& num: B)
+		for(const siz& num: teams[team_id::B])
 		{
 			oss.str("");
 			print_duration(hr_clk::now() - players[num].joined, oss);
@@ -173,7 +199,7 @@ struct game
 			<< '\n';
 		}
 		os << "spec:\n";
-		for(const siz& num: S)
+		for(const siz& num: teams[team_id::S])
 			os << '\t' << players[num].guid << ' ' << players[num].name
 				<< " is speccing." << '\n';
 	}

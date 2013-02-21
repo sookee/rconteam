@@ -50,7 +50,7 @@ siz get_last_field(const str& line, str& val, char delim = ' ')
 
 void TeamBalancer::chat(const str& text) const
 {
-	rcon.call("chat " + prefix + text + suffix);
+	rcon->call("chat " + prefix + text + suffix);
 }
 
 void TeamBalancer::tell(siz /*num*/, const str& text) const
@@ -70,7 +70,7 @@ bool TeamBalancer::get_snapshot()
 	g.clear();
 
 	str response;
-	if(!rcon.call("!listplayers", response))
+	if(!rcon->call("!listplayers", response))
 		return false;
 
 	bug_var(response);
@@ -102,27 +102,27 @@ bool TeamBalancer::get_snapshot()
 		g.players[num].guid = guid;
 
 		// Did we just join the game?
-		bool joined_game = !old_g.R.count(num) && !old_g.B.count(num);
+		bool joined_game = !old_g.teams[team_id::R].count(num) && !old_g.teams[team_id::B].count(num);
 
 		if(team == "R" && (!testing || !guid.empty())) // only count blue team bots for testing
 		{
-			if(g.R.insert(num).second  && (old_g.B.count(num) || joined_game))
+			if(g.teams[team_id::R].insert(num).second  && (old_g.teams[team_id::B].count(num) || joined_game))
 				g.players[num].joined = hr_clk::now();
 		}
 		else if(team == "B")
 		{
-			if(g.B.insert(num).second && (old_g.R.count(num) || joined_game))
+			if(g.teams[team_id::B].insert(num).second && (old_g.teams[team_id::R].count(num) || joined_game))
 				g.players[num].joined = hr_clk::now();
 		}
 		else if(team == "S")
 		{
-			g.S.insert(num);
+			g.teams[team_id::S].insert(num);
 		}
 	}
 
 	// GET teams/scores/names - neet to match to guids/names
 
-	if(!rcon.call("status", response))
+	if(!rcon->call("status", response))
 		return false;
 
 	// map: oasago2
@@ -227,6 +227,11 @@ void TeamBalancer::select_policy()
 		chat("System is active for this gametype.");
 }
 
+str key(siz num, const team_id& team)
+{
+	return std::to_string(team) + "-" + std::to_string(num);
+}
+
 void TeamBalancer::run()
 {
 	bug_func();
@@ -260,24 +265,24 @@ void TeamBalancer::run()
 
 		// implement team chages using rcon
 		siz num;
-		char team;
-		if(!policy->action(g, num, team))
+		team_id team;
+		if(!policy->balance(g, num, team))
 		{
 			actions.clear();
 			continue;
 		}
 
-		if(actions[std::to_string(num) + team] == ACT_CALL_TEAMS)
+		if(actions[key(num, team)] == ACT_CALL_TEAMS)
 			call_teams(num, team);
-		else if(actions[std::to_string(num) + team] == ACT_REQUEST_PLAYER)
+		else if(actions[key(num, team)] == ACT_REQUEST_PLAYER)
 			request_player(num, team);
-		else if(actions[std::to_string(num) + team] == ACT_PUTTEAM)
+		else if(actions[key(num, team)] == ACT_PUTTEAM)
 			putteam(num, team);
 		else
 		{
 			log("ERROR: Unknown ACTION:   Should never happen.");
 			// take reasonable action
-			actions[std::to_string(num) + team] = ACT_PUTTEAM;
+			actions[key(num, team)] = ACT_PUTTEAM;
 			putteam(num, team);
 		}
 	}
@@ -304,7 +309,7 @@ void TeamBalancer::putteam(siz num, char team)
 		tell(num, "Please balance the teams: " + g.players[num].name);
 		return;
 	}
-	rcon.call("!putteam " + std::to_string(num) + " " + team);
+	rcon->call("!putteam " + std::to_string(num) + " " + team);
 	tell(num, "^3SORRY " + g.players[num].name + " ^3but the teams NEEDED balancing");
 	tell(num, g.players[num].name + " ^7:^3 This was an ^7AUTOMATED^3 action");
 	actions[std::to_string(num) + team] = 0;

@@ -129,7 +129,7 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	return true;
 }
 
-bool RCon::rcon(const str& host, siz port, const str& cmd, str& reply) const
+bool RConImpl::rcon(const str& host, siz port, const str& cmd, str& reply) const
 {
 	str_vec packets;
 	if(!aocom(cmd, packets, host, port, TIMEOUT))

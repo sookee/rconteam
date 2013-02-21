@@ -49,8 +49,6 @@ private:
 public:
 	virtual ~TeamPolicy() {}
 
-	bool action(const game& g, siz& num, char& team);
-
 	/**
 	 * Policy name
 	 * @return Name of the implementing policy.
@@ -66,7 +64,7 @@ public:
 	 * @return true if a balancing recommendation has been made else false.
 	 * The return parameter num conteain the resommendation.
 	 */
-	virtual bool balance(const game& g, const team& from, const team& to, siz& num) = 0;
+	virtual bool balance(const game& g, siz& num, team_id& team) = 0;
 
 	/**
 	 * Factory funstion for selecting policies
@@ -93,7 +91,7 @@ class LIFOTeamPolicy
 {
 public:
 	virtual str name() const;
-	virtual bool balance(const game& g, const team& from, const team& to, siz& num);
+	virtual bool balance(const game& g, siz& num, team_id& team);
 
 };
 
@@ -102,7 +100,7 @@ class SkillTeamPolicy
 {
 public:
 	virtual str name() const;
-	virtual bool balance(const game& g, const team& from, const team& to, siz& num);
+	virtual bool balance(const game& g, siz& num, team_id& team);
 
 };
 

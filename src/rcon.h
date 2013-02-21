@@ -34,9 +34,26 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 #include "types.h"
 
+#include <memory>
+
 namespace oa {
 
 class RCon
+{
+public:
+	virtual ~RCon() {}
+
+	virtual bool call(const str& cmd, str& res) const = 0;
+
+	bool call(const str& cmd) const
+	{
+		str res;
+		return call(cmd, res);
+	}
+};
+
+class RConImpl
+: public RCon
 {
 	const str host;
 	const siz port;
@@ -45,20 +62,37 @@ class RCon
 	bool rcon(const str& host, siz port, const str& cmd, str& reply) const;
 
 public:
-	RCon(const str& host, siz port, const str& pass)
+	RConImpl(const str& host, siz port, const str& pass)
 	: host(host), port(port), pass(pass) {}
 
-	bool call(const str& cmd, str& res) const
+	virtual bool call(const str& cmd, str& res) const
 	{
 		return rcon(host, port, "rcon " + pass + " " + cmd, res);
 	}
+};
 
-	bool call(const str& cmd) const
+class RConTest
+: public RCon
+{
+private:
+	std::istream& i;
+	std::ostream& o;
+
+public:
+	RConTest(std::istream& i, std::ostream& o): i(i), o(o) {}
+
+	virtual bool call(const str& cmd, str& res) const
 	{
-		str res;
-		return call(cmd, res);
+		res.clear();
+		o << "rcon " + cmd << '\n';
+		str line;
+		while(sgl(i, line) && !line.empty())
+			res += line + '\n';
+		return i;
 	}
 };
+
+typedef std::shared_ptr<RCon> RConSPtr;
 
 } // oa
 

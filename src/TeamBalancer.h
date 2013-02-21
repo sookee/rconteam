@@ -62,7 +62,7 @@ private:
 	bool ignore_bots = false;
 	bool team_game = false; // is it a team game? g_gametype = 4..
 
-	const RCon rcon;
+	RConSPtr rcon;
 	TeamPolicySPtr policy;
 
 	game g; // current snapshot
@@ -129,7 +129,7 @@ private:
 	void rconset(const str& cvar, T& val)
 	{
 		str response;
-		if(!rcon.call(cvar, response))
+		if(!rcon->call(cvar, response))
 		{
 			log("WARN: rconset failure: " << cvar);
 			return;
@@ -151,7 +151,7 @@ private:
 	}
 
 public:
-	TeamBalancer(const RCon& rcon)
+	TeamBalancer(const RConSPtr& rcon)
 	: rcon(rcon), policy(TeamPolicy::create())
 	, pause(st_clk::now() + std::chrono::seconds(10))
 	{}

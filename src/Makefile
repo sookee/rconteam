@@ -28,7 +28,7 @@ OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))
 
 all: rconteam
 
-rconteam: $(OBJECTS) 
+rconteam: $(OBJECTS)
 	$(CXX) -o rconteam $(OBJECTS)
 
 %.o: %.c $(DEPS)
