@@ -92,7 +92,6 @@ class LIFOTeamPolicy
 public:
 	virtual str name() const;
 	virtual bool balance(const game& g, siz& num, team_id& team);
-
 };
 
 class SkillTeamPolicy
@@ -101,7 +100,6 @@ class SkillTeamPolicy
 public:
 	virtual str name() const;
 	virtual bool balance(const game& g, siz& num, team_id& team);
-
 };
 
 } // oa

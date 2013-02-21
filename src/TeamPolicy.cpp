@@ -232,6 +232,7 @@ bool SkillTeamPolicy::balance(const game& g, siz& num, team_id& team)
 	update_stats(g.map, stats);
 
 	siz s = 0;
+
 	siz to_ave = 0; // average of to team average scores
 	if((s = g.teams[to].size()) > 0)
 	{
@@ -239,6 +240,7 @@ bool SkillTeamPolicy::balance(const game& g, siz& num, team_id& team)
 			to_ave += stats[num_guids[n]].average_score;
 		to_ave /= s;
 	}
+
 	siz from_ave = 0; // average of to team average scores
 	if((s = g.teams[to].size()) > 0)
 	{
@@ -291,12 +293,12 @@ bool SkillTeamPolicy::balance(const game& g, siz& num, team_id& team)
 			}
 		}
 	}
+
 	if(change_num == siz(-1))
 		log("ERROR: failed to find lowest average score");
 	else
 		num = change_num;
 
-	log("ERROR: This TeamPolicy implementation is unfinished");
 	return true;
 }
 
