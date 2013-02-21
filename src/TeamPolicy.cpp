@@ -70,22 +70,6 @@ TeamPolicySPtr TeamPolicy::create(const str& type)
 	return policies.at(POLICY_DEFAULT);
 }
 
-//bool TeamPolicy::action(const game& g, siz& num, const team_id& team)
-//{
-//	if(std::abs(int(g.teams.at(team_id::B).size()) - int(g.teams.at(team_id::R).size())) < 2)
-//		return false; // ballanced
-//
-//	const siz reds = g.teams[team_id::R].size();
-//	const siz blues = g.teams[team_id::B].size();
-//	const team_id& to = blues < reds ? team_id::B : team_id::R;
-//	const team_id& from = reds < blues ? team_id::B : team_id::R;
-//
-//	if(!balance(g, from, to, num))
-//		return false;
-//	t = g.B.size() < g.R.size() ? 'B' : 'R';
-//	return true;
-//}
-
 str LIFOTeamPolicy::name() const { return POLICY_LIFO; }
 
 /**
@@ -101,10 +85,6 @@ bool LIFOTeamPolicy::balance(const game& g, siz& num, team_id& team)
 	const team_id& to = blues < reds ? team_id::B : team_id::R;
 	const team_id& from = reds < blues ? team_id::B : team_id::R;
 
-	bug_var(g.teams[from].size());
-	bug_var(g.teams[to].size());
-	bug_var((g.teams[from].size() - g.teams[to].size()));
-
 	if(g.teams[from].size() - g.teams[to].size() < 2)
 		return false; // balanced
 
@@ -115,10 +95,6 @@ bool LIFOTeamPolicy::balance(const game& g, siz& num, team_id& team)
 	bool found = false;
 	for(const siz& this_num: g.teams.at(from))
 	{
-//		soss oss;
-//		print_duration(last_time, oss);
-//		bug_var(last_time);
-//		bug_var(g.players.at(this_num).joined);
 		if(g.players.at(this_num).joined <= last_time)
 			continue;
 		last_time = g.players.at(this_num).joined;
@@ -126,15 +102,71 @@ bool LIFOTeamPolicy::balance(const game& g, siz& num, team_id& team)
 		found = true;
 	}
 
-	bug_var(found);
-
 	team = to;
-
 	num = last_num;
+
 	return found;
 }
 
 str SkillTeamPolicy::name() const { return POLICY_SKILL; }
+
+struct stat
+{
+	siz snapshots = 0;
+	siz average_score = 0;
+};
+
+typedef std::map<str, stat> stat_map; // guid -> stat
+
+/**
+ * Accumulate game score stats in stat_map.
+ * @param mapname
+ * @param guids
+ * @param stats
+ */
+void read_stats(const str& mapname, const str_set& guids, stat_map& stats)
+{
+	// <guid> <mapname> <snapshots> <average-score>
+	stats.clear();
+	std::ifstream ifs("SkillTeamPolicy-stats.txt");
+	str line;
+	str g, m;
+	stat st;
+	while(sgl(ifs, line))
+	{
+		if(!(siss(line) >> g >> m >> st.snapshots >> st.average_score))
+			continue;
+		if(m != mapname || guids.find(g) == guids.end())
+			continue;
+		stats.at(g) = st;
+	}
+}
+
+void update_stats(const str& mapname, const stat_map& stats)
+{
+	std::ifstream ifs("SkillTeamPolicy-stats.txt");
+	sss ss;
+	str line;
+	str g, m;
+	stat st;
+	while(sgl(ifs, line))
+	{
+		if(!(siss(line) >> g >> m >> st.snapshots >> st.average_score))
+			continue;
+		if(m != mapname || stats.find(g) == stats.end())
+		{
+			ss << line << '\n';
+			continue;
+		}
+		ss << g << ' ' << mapname
+			<< ' ' << stats.at(g).snapshots
+			<< ' ' << stats.at(g).average_score << '\n';
+	}
+	ifs.close();
+	std::ofstream ofs("SkillTeamPolicy-stats.txt");
+	while(sgl(ss, line))
+		ofs << line << '\n';
+}
 
 /**
  * Ballance number of players by switching
@@ -143,10 +175,129 @@ str SkillTeamPolicy::name() const { return POLICY_SKILL; }
  */
 bool SkillTeamPolicy::balance(const game& g, siz& num, team_id& team)
 {
-	bool changed = false;
-	// TODO: Implement this
-	log("ERROR: This TeamPolicy implement is unfinished");
-	return changed;
+	const siz reds = g.teams.at(team_id::R).size();
+	const siz blues = g.teams.at(team_id::B).size();
+
+	const team_id& to = blues < reds ? team_id::B : team_id::R;
+	const team_id& from = reds < blues ? team_id::B : team_id::R;
+
+	const siz num_of_changes = g.teams[from].size() - g.teams[to].size();
+
+	if(num_of_changes < 2)
+		return false; // balanced
+
+	log("blance: Teams need balancing");
+
+
+	// get stats from previous snapshots for this map
+	stat_map stats; // guid -> stat
+
+	// cache relevant info
+	std::map<siz, str> num_guids; // num -> guid
+	std::map<str, siz> guid_nums; // guid -> num
+
+	str_set guids;
+	for(const siz n: g.teams[team_id::R])
+	{
+		if(g.players.find(n) == g.players.cend())
+			continue;
+		guids.insert(g.players.at(n).guid);
+		num_guids[n] = g.players.at(n).guid;
+		guid_nums[g.players.at(n).guid] = n;
+	}
+	for(const siz n: g.teams[team_id::B])
+	{
+		if(g.players.find(n) == g.players.cend())
+			continue;
+		guids.insert(g.players.at(n).guid);
+		num_guids[n] = g.players.at(n).guid;
+		guid_nums[g.players.at(n).guid] = n;
+	}
+
+	read_stats(g.map, guids, stats);
+
+	// update the stats from the snapshot g
+	for(auto& s: stats)
+	{
+		const siz n = guid_nums[s.first];
+		if(g.players.find(n) == g.players.cend())
+			continue;
+		siz snapshot = s.second.snapshots + 1;
+		s.second.average_score = ((s.second.average_score * s.second.snapshots)
+			+ g.players.at(n).score) / snapshot;
+		s.second.snapshots = snapshot;
+	}
+
+	// store stats updated from game snapshot
+	update_stats(g.map, stats);
+
+	siz s = 0;
+	siz to_ave = 0; // average of to team average scores
+	if((s = g.teams[to].size()) > 0)
+	{
+		for(const siz n: g.teams[to])
+			to_ave += stats[num_guids[n]].average_score;
+		to_ave /= s;
+	}
+	siz from_ave = 0; // average of to team average scores
+	if((s = g.teams[to].size()) > 0)
+	{
+		for(const siz n: g.teams[from])
+			from_ave += stats[num_guids[n]].average_score;
+		from_ave /= s;
+	}
+
+	siz change_num = siz(-1);
+	if(to_ave >= from_ave) // pick weakest player to move
+	{
+		siz ave = siz(-1);
+		for(const siz n: g.teams[from])
+		{
+			if(stats[num_guids[n]].average_score < ave)
+			{
+				ave = stats[num_guids[n]].average_score;
+				change_num = n;
+			}
+		}
+	}
+	else // pick to make closest skill match
+	{
+		// only try to make up for one player's worth of difference
+		const siz diff_ave = (from_ave - to_ave) / num_of_changes;
+		const siz ideal_ave = (to_ave + diff_ave) / 2;
+
+		siz diff = siz(-1);;
+		for(const siz n: g.teams[from])
+		{
+			// calculate projected new to_ave
+			siz new_to_ave = ((to_ave * g.teams[to].size())
+				+ stats[num_guids[n]].average_score) / (g.teams[to].size() + 1);
+
+			if(new_to_ave < ideal_ave)
+			{
+				if(ideal_ave - new_to_ave < diff)
+				{
+					diff = ideal_ave - new_to_ave;
+					change_num = n;
+				}
+			}
+			else
+			{
+				if(new_to_ave - ideal_ave < diff)
+				{
+					diff = new_to_ave - ideal_ave;
+					change_num = n;
+				}
+			}
+		}
+	}
+	if(change_num == siz(-1))
+		log("ERROR: failed to find lowest average score");
+	else
+		num = change_num;
+
+	log("ERROR: This TeamPolicy implementation is unfinished");
+	return true;
 }
 
 } // oa
