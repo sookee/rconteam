@@ -188,7 +188,6 @@ bool SkillTeamPolicy::balance(const game& g, siz& num, team_id& team)
 
 	log("blance: Teams need balancing");
 
-
 	// get stats from previous snapshots for this map
 	stat_map stats; // guid -> stat
 
@@ -249,15 +248,15 @@ bool SkillTeamPolicy::balance(const game& g, siz& num, team_id& team)
 		from_ave /= s;
 	}
 
+	siz low = siz(-1);
 	siz change_num = siz(-1);
 	if(to_ave >= from_ave) // pick weakest player to move
 	{
-		siz ave = siz(-1);
 		for(const siz n: g.teams[from])
 		{
-			if(stats[num_guids[n]].average_score < ave)
+			if(stats[num_guids[n]].average_score < low)
 			{
-				ave = stats[num_guids[n]].average_score;
+				low = stats[num_guids[n]].average_score;
 				change_num = n;
 			}
 		}
@@ -268,7 +267,6 @@ bool SkillTeamPolicy::balance(const game& g, siz& num, team_id& team)
 		const siz diff_ave = (from_ave - to_ave) / num_of_changes;
 		const siz ideal_ave = (to_ave + diff_ave) / 2;
 
-		siz diff = siz(-1);;
 		for(const siz n: g.teams[from])
 		{
 			// calculate projected new to_ave
@@ -277,17 +275,17 @@ bool SkillTeamPolicy::balance(const game& g, siz& num, team_id& team)
 
 			if(new_to_ave < ideal_ave)
 			{
-				if(ideal_ave - new_to_ave < diff)
+				if(ideal_ave - new_to_ave < low)
 				{
-					diff = ideal_ave - new_to_ave;
+					low = ideal_ave - new_to_ave;
 					change_num = n;
 				}
 			}
 			else
 			{
-				if(new_to_ave - ideal_ave < diff)
+				if(new_to_ave - ideal_ave < low)
 				{
-					diff = new_to_ave - ideal_ave;
+					low = new_to_ave - ideal_ave;
 					change_num = n;
 				}
 			}
