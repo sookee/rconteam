@@ -40,11 +40,6 @@ namespace oa {
 
 str TeamPolicySCORE::name() const { return POLICY_SCORE; }
 
-/**
- * Ballance number of players by switching
- * last person to join first.
- * @param g
- */
 bool TeamPolicySCORE::balance(const game& g, siz& num, team_id& team)
 {
 	const siz reds = g.teams.at(team_id::R).size();

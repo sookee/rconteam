@@ -99,11 +99,6 @@ void update_stats(const str& mapname, const stat_map& stats)
 		ofs << line << '\n';
 }
 
-/**
- * Ballance number of players by switching
- * last the most appropriately skilled person.
- * @param g
- */
 bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 {
 	const siz reds = g.teams.at(team_id::R).size();

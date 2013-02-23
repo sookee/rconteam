@@ -34,19 +34,25 @@ http://www.gnu.org/licenses/gpl-2.0.html
 '-----------------------------------------------------------------*/
 
 #include <memory>
+#include <map>
 
 #include "rcon.h"
 #include "types.h"
 
 namespace oa {
 
-typedef std::shared_ptr<class TeamPolicy> TeamPolicySPtr;
+class TeamPolicy;
+
+typedef std::shared_ptr<TeamPolicy> TeamPolicySPtr;
+typedef std::map<str, TeamPolicySPtr> policy_map;
 
 class TeamPolicy
 {
 private:
+	static policy_map policies;
 
 public:
+	TeamPolicy();
 	virtual ~TeamPolicy() {}
 
 	/**
@@ -84,6 +90,15 @@ public:
 	 * @return The default policy name
 	 */
 	static str get_default_policy_name();
+
+	/**
+	 * Register a policy with to make it
+	 * available from the factory methods.
+	 * @param policy The TeamPolicy implementation to
+	 * be registered.
+	 * @return true on success, else false
+	 */
+	static bool register_policy(TeamPolicy* policy);
 };
 
 } // oa

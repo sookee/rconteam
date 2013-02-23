@@ -42,16 +42,20 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
-//const str POLICY_LIFO = "LIFO";
-//const str POLICY_SKILL = "SKILL";
 const str POLICY_DEFAULT = POLICY_LIFO;
 
-static const std::map<str, TeamPolicySPtr> policies =
+policy_map TeamPolicy::policies;
+
+TeamPolicy::TeamPolicy()
 {
-	{POLICY_LIFO, TeamPolicySPtr(new TeamPolicyLIFO)}
-	, {POLICY_SCORE, TeamPolicySPtr(new TeamPolicySCORE)}
-	, {POLICY_SKILL, TeamPolicySPtr(new TeamPolicySKILL)}
-};
+	if(!policies.empty())
+		return;
+
+	// Built-in policies
+	register_policy(new TeamPolicyLIFO);
+	register_policy(new TeamPolicySCORE);
+	register_policy(new TeamPolicySKILL);
+}
 
 str_set TeamPolicy::get_policy_names()
 {
@@ -73,6 +77,17 @@ TeamPolicySPtr TeamPolicy::create(const str& type)
 
 	log("WARN: Unknown team policy:" << type << ", using default");
 	return policies.at(POLICY_DEFAULT);
+}
+
+bool TeamPolicy::register_policy(TeamPolicy* policy)
+{
+	if(!policy)
+	{
+		log("NULL policy");
+		return false;
+	}
+	policies[policy->name()] = TeamPolicySPtr(policy);
+	return true;
 }
 
 } // oa

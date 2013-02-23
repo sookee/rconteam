@@ -40,11 +40,6 @@ namespace oa {
 
 str TeamPolicyLIFO::name() const { return POLICY_LIFO; }
 
-/**
- * Ballance number of players by switching
- * last person to join first.
- * @param g
- */
 bool TeamPolicyLIFO::balance(const game& g, siz& num, team_id& team)
 {
 	const siz reds = g.teams.at(team_id::R).size();

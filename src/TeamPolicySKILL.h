@@ -44,6 +44,12 @@ namespace oa {
 
 const str POLICY_SKILL = "SKILL";
 
+/**
+ * Ballance number of players by switching
+ * the most appropriately skilled person.
+ * This policy stores player statistics between
+ * games based on the player's GUID.
+ */
 class TeamPolicySKILL
 : public TeamPolicy
 {

@@ -44,6 +44,10 @@ namespace oa {
 
 const str POLICY_SCORE = "SCORE";
 
+/**
+ * Ballance number of players by switching
+ * last person with the most appropriate score/time ratio.
+ */
 class TeamPolicySCORE
 : public TeamPolicy
 {

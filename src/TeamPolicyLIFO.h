@@ -44,6 +44,10 @@ namespace oa {
 
 const str POLICY_LIFO = "LIFO";
 
+/**
+ * Ballance number of players by switching
+ * last person to join first.
+ */
 class TeamPolicyLIFO
 : public TeamPolicy
 {
