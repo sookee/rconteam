@@ -34,8 +34,13 @@ namespace oa {
 const team_id team_id::S = 0;
 const team_id team_id::R = 1;
 const team_id team_id::B = 2;
+const team_id team_id::X = siz(-1); // end (iterator)
 
 const str team_id::map = "SRB";
+const std::vector<team_id> team_id::ids =
+{
+	team_id::S, team_id::R, team_id::B, team_id::X
+};
 
 } // oa
 

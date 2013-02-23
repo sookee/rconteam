@@ -40,8 +40,58 @@ namespace oa {
 
 str TeamPolicySCORE::name() const { return POLICY_SCORE; }
 
+struct stat
+{
+	st_time_point score_reset;
+	siz score_max; // maximum score since score_reset
+};
+typedef std::map<str, stat> stat_map;
+
+struct rate
+{
+	std::chrono::minutes mins;
+	siz score;
+};
+typedef std::map<str, rate> rate_map;
+
+stat_map stats; // guid -> stat
+rate_map rates; // guid -> rate
+
 bool TeamPolicySCORE::balance(const game& g, siz& num, team_id& team)
 {
+	// update average scors
+
+	for(auto& pp: g.players)
+	{
+		// delete missing players/specs from stats & rates
+		if((g.teams[team_id::R].find(pp.first) == g.teams[team_id::R].end()
+		&& g.teams[team_id::B].find(pp.first) == g.teams[team_id::B].end())
+		|| g.teams[team_id::S].find(pp.first) != g.teams[team_id::S].end())
+		{
+			stats.erase(pp.second.guid);
+			rates.erase(pp.second.guid);
+			continue;
+		}
+
+		// calc stats
+		const player& p = pp.second;
+		stat& s = stats[p.guid];
+		rate& r = rates[p.guid];
+
+		if(p.score >= s.score_max)
+			s.score_max = p.score;
+		else // store & reset
+		{
+			st_time_point now = st_clk::now();
+			r.score = (r.score * r.mins.count()
+				+ s.score_max)
+				/ (r.mins.count()
+				+ std::chrono::duration_cast<std::chrono::minutes>(now - s.score_reset).count());
+			s.score_max = 0;
+			s.score_reset = now;
+		}
+	}
+
 	const siz reds = g.teams.at(team_id::R).size();
 	const siz blues = g.teams.at(team_id::B).size();
 

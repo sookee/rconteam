@@ -200,7 +200,8 @@ bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 				log("socket timed out connecting to: " << host << ":" << port);
 				return false;
 			}
-			std::this_thread::yield();
+//			std::this_thread::yield();
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		if(n < 0)
 			log("cs recv: " << strerror(errno));

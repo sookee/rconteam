@@ -51,10 +51,15 @@ typedef std::size_t siz;
 
 // containers
 typedef std::set<str> str_set;
-typedef std::vector<str> str_vec;
-
 typedef std::set<siz> siz_set;
+
+typedef std::vector<str> str_vec;
 typedef std::vector<siz> siz_vec;
+
+typedef std::map<str, str> str_map;
+typedef std::map<siz, siz> siz_map;
+typedef std::map<str, siz> str_siz_map;
+typedef std::map<siz, str> siz_str_map;
 
 // time
 typedef std::chrono::steady_clock st_clk;
@@ -133,6 +138,8 @@ class team_id
 	team_id(siz idx): idx(idx){}
 
 	static const str map;
+	static const std::vector<team_id> ids;
+	static const team_id X;// = -1;
 
 public:
 	static const team_id S;// = 0;
@@ -155,7 +162,34 @@ public:
 	bool operator==(const team_id& id) const { return idx == id.idx; }
 
 	team_id& operator=(const team_id& id) { idx = id.idx; return *this; }
+
+
+	// There must be begin and end methods that operate on that structure,
+	// either as members or as stand-alone functions, and that return
+	// iterators to the beginning and end of the structure
+
+	// The iterator itself must support an operator* method, an operator != method,
+	// and an operator++ method, either as members or as stand-alone functions
+	// (you can read more about operator overloading)
+
+	class iterator
+	{
+		friend iterator begin(const team_id&);
+		friend iterator end(const team_id&);
+	private:
+		siz i = 0;
+		iterator(siz i = 3): i(i) {}; // 3 = end
+
+	public:
+		const team_id& operator*() const { return ids[i]; }
+		bool operator!=(const iterator& iter) const { return i != iter.i; }
+		iterator& operator++() { i = i + 1 > 3 ? 0 : i + 1; return *this; }
+
+	};
 };
+
+inline team_id::iterator begin(const team_id&) { return team_id::iterator(0); }
+inline team_id::iterator end(const team_id&) { return team_id::iterator(); }
 
 typedef std::map<team_id, team> team_map;
 

@@ -109,11 +109,6 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 
 	const siz num_of_changes = g.teams[from].size() - g.teams[to].size();
 
-	if(num_of_changes < 2)
-		return false; // balanced
-
-	log("blance: Teams need balancing");
-
 	// get stats from previous snapshots for this map
 	stat_map stats; // guid -> stat
 
@@ -155,6 +150,11 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 
 	// store stats updated from game snapshot
 	update_stats(g.map, stats);
+
+	if(num_of_changes < 2)
+		return false; // balanced
+
+	log("blance: Teams need balancing");
 
 	siz s = 0;
 
