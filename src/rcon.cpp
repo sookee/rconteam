@@ -129,6 +129,15 @@ namespace oa {
 //	return true;
 //}
 
+/**
+ * IPv4 IPv6 agnostic OOB (out Of Band) comms
+ * @param cmd
+ * @param packets Returned packets
+ * @param host Host to connect to
+ * @param port Port to connect on
+ * @param wait Timeout duration in milliseconds
+ * @return false if failed to connect/send or receive else true
+ */
 bool aocom(const str& cmd, str_vec& packets, const str& host, int port
 	, siz wait = TIMEOUT)
 {

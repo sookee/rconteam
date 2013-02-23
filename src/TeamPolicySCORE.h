@@ -1,7 +1,11 @@
+#pragma once
+#ifndef _OA_TEAMPOLICY_SCORE_H__
+#define _OA_TEAMPOLICY_SCORE_H__
+
 /*
- * TeamPolicy.cpp
+ * TeamPolicyFILO.h
  *
- *  Created on: Feb 17, 2013
+ *  Created on: Feb 23, 2013
  *      Author: oasookee@gmail.com
  */
 
@@ -29,50 +33,25 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-//#include <cmath>
+#include <memory>
 
 #include "TeamPolicy.h"
-#include "types.h"
-#include "bug.h"
-#include "log.h"
 
-#include "TeamPolicyLIFO.h"
-#include "TeamPolicySCORE.h"
-#include "TeamPolicySKILL.h"
+#include "rcon.h"
+#include "types.h"
 
 namespace oa {
 
-//const str POLICY_LIFO = "LIFO";
-//const str POLICY_SKILL = "SKILL";
-const str POLICY_DEFAULT = POLICY_LIFO;
+const str POLICY_SCORE = "SCORE";
 
-static const std::map<str, TeamPolicySPtr> policies =
+class TeamPolicySCORE
+: public TeamPolicy
 {
-	{POLICY_LIFO, TeamPolicySPtr(new TeamPolicyLIFO)}
-	, {POLICY_SCORE, TeamPolicySPtr(new TeamPolicySCORE)}
-	, {POLICY_SKILL, TeamPolicySPtr(new TeamPolicySKILL)}
+public:
+	virtual str name() const;
+	virtual bool balance(const game& g, siz& num, team_id& team);
 };
 
-str_set TeamPolicy::get_policy_names()
-{
-	str_set keys;
-	for(const auto& p: policies)
-		keys.insert(p.first);
-	return keys;
-}
-
-str TeamPolicy::get_default_policy_name()
-{
-	return POLICY_DEFAULT;
-}
-
-TeamPolicySPtr TeamPolicy::create(const str& type)
-{
-	if(policies.find(type) != policies.cend())
-		return policies.at(type);
-
-	log("WARN: Unknown team policy:" << type << ", using default");
-	return policies.at(POLICY_DEFAULT);
-}
-
 } // oa
+
+#endif /* _OA_TEAMPOLICY_SCORE_H__ */

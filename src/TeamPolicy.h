@@ -86,22 +86,6 @@ public:
 	static str get_default_policy_name();
 };
 
-class LIFOTeamPolicy
-: public TeamPolicy
-{
-public:
-	virtual str name() const;
-	virtual bool balance(const game& g, siz& num, team_id& team);
-};
-
-class SkillTeamPolicy
-: public TeamPolicy
-{
-public:
-	virtual str name() const;
-	virtual bool balance(const game& g, siz& num, team_id& team);
-};
-
 } // oa
 
 #endif /* _OA_TEAMPOLICY_H__ */

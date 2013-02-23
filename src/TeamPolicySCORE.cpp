@@ -1,7 +1,7 @@
 /*
- * TeamPolicy.cpp
+ * TeamPolicySCORE.cpp
  *
- *  Created on: Feb 17, 2013
+ *  Created on: Feb 23, 2013
  *      Author: oasookee@gmail.com
  */
 
@@ -31,48 +31,49 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 //#include <cmath>
 
-#include "TeamPolicy.h"
+#include "TeamPolicySCORE.h"
 #include "types.h"
 #include "bug.h"
 #include "log.h"
 
-#include "TeamPolicyLIFO.h"
-#include "TeamPolicySCORE.h"
-#include "TeamPolicySKILL.h"
-
 namespace oa {
 
-//const str POLICY_LIFO = "LIFO";
-//const str POLICY_SKILL = "SKILL";
-const str POLICY_DEFAULT = POLICY_LIFO;
+str TeamPolicySCORE::name() const { return POLICY_SCORE; }
 
-static const std::map<str, TeamPolicySPtr> policies =
+/**
+ * Ballance number of players by switching
+ * last person to join first.
+ * @param g
+ */
+bool TeamPolicySCORE::balance(const game& g, siz& num, team_id& team)
 {
-	{POLICY_LIFO, TeamPolicySPtr(new TeamPolicyLIFO)}
-	, {POLICY_SCORE, TeamPolicySPtr(new TeamPolicySCORE)}
-	, {POLICY_SKILL, TeamPolicySPtr(new TeamPolicySKILL)}
-};
+	const siz reds = g.teams.at(team_id::R).size();
+	const siz blues = g.teams.at(team_id::B).size();
 
-str_set TeamPolicy::get_policy_names()
-{
-	str_set keys;
-	for(const auto& p: policies)
-		keys.insert(p.first);
-	return keys;
-}
+	const team_id& to = blues < reds ? team_id::B : team_id::R;
+	const team_id& from = reds < blues ? team_id::B : team_id::R;
 
-str TeamPolicy::get_default_policy_name()
-{
-	return POLICY_DEFAULT;
-}
+	if(g.teams[from].size() - g.teams[to].size() < 2)
+		return false; // balanced
 
-TeamPolicySPtr TeamPolicy::create(const str& type)
-{
-	if(policies.find(type) != policies.cend())
-		return policies.at(type);
+	log("blance: Teams need balancing");
 
-	log("WARN: Unknown team policy:" << type << ", using default");
-	return policies.at(POLICY_DEFAULT);
+//	hr_time_point last_time;
+//	siz last_num = 0;
+//	bool found = false;
+//	for(const siz& this_num: g.teams.at(from))
+//	{
+//		if(g.players.at(this_num).joined <= last_time)
+//			continue;
+//		last_time = g.players.at(this_num).joined;
+//		last_num = this_num;
+//		found = true;
+//	}
+//
+//	team = to;
+//	num = last_num;
+//
+	return true;
 }
 
 } // oa
