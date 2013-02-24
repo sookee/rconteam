@@ -64,9 +64,8 @@ bool TeamPolicySCORE::balance(const game& g, siz& num, team_id& team)
 	for(auto& pp: g.players)
 	{
 		// delete missing players/specs from stats & rates
-		if((g.teams[team_id::R].find(pp.first) == g.teams[team_id::R].end()
-		&& g.teams[team_id::B].find(pp.first) == g.teams[team_id::B].end())
-		|| g.teams[team_id::S].find(pp.first) != g.teams[team_id::S].end())
+		if((!g.teams[team_id::R].count(pp.first) && !g.teams[team_id::B].count(pp.first))
+		|| g.teams[team_id::S].count(pp.first))
 		{
 			stats.erase(pp.second.guid);
 			rates.erase(pp.second.guid);
