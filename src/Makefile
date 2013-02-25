@@ -1,4 +1,8 @@
 
+# requirements
+REQ_CXX11_TEST = $(shell echo "int main(){}" | g++ -x c++ -std=c++11 - 2>/dev/null; echo $$?)
+REQ_CXX11_FAIL = "ERROR: Requires g++ v4.7 or above to comiile."
+
 DEBUGFLAGS = \
 	-D _GLIBCXX_DEBUG \
 	-D _GLIBCXX_DEBUG_PEDANTIC \
@@ -25,7 +29,10 @@ CXXFLAGS = \
 SOURCES := $(wildcard *.cpp)
 OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))
 
-all: rconteam
+all: reqs rconteam
+
+reqs:
+	@if (($(REQ_CXX11_TEST))); then echo $(REQ_CXX11_FAIL); exit 1; fi
 
 rconteam: $(OBJECTS)
 	$(CXX) -o rconteam $(OBJECTS)
@@ -36,4 +43,5 @@ rconteam: $(OBJECTS)
 clean:
 	rm -fr $(OBJECTS) rconteam 
 	
-	
+.PHONY: reqs
+
