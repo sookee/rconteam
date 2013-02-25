@@ -1,12 +1,12 @@
 /*
- * types.cpp
+ * log.cpp
  *
- *  Created on: 20 Feb 2013
+ *  Created on: 25 Feb 2013
  *      Author: oasookee@gmail.com
  */
 
 /*-----------------------------------------------------------------.
-| Copyright (C) 2013 SooKee oasookee@googlemail.com               |
+| Copyright (C) 2013 SooKee oasookee@gmail.com                     |
 '------------------------------------------------------------------'
 
 This program is free software; you can redistribute it and/or
@@ -27,9 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
-#include "types.h"
+
+#include "log.h"
 
 namespace oa {
 
 } // oa
-

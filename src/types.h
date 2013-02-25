@@ -145,7 +145,7 @@ typedef std::map<team_id, team> team_map;
 
 struct game
 {
-	str map;
+	str mapname;
 	std::map<team_id, siz_set> teams;
 
 	std::map<siz, player> players; // num -> player
@@ -153,7 +153,7 @@ struct game
 
 	void clear()
 	{
-		map.clear();
+		mapname.clear();
 		teams[team_id::S].clear();
 		teams[team_id::R].clear();
 		teams[team_id::B].clear();

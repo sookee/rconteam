@@ -134,7 +134,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 		guid_nums[g.players.at(n).guid] = n;
 	}
 
-	read_stats(g.map, guids, stats);
+	read_stats(g.mapname, guids, stats);
 
 	// update the stats from the snapshot g
 	for(auto& s: stats)
@@ -149,7 +149,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	}
 
 	// store stats updated from game snapshot
-	update_stats(g.map, stats);
+	update_stats(g.mapname, stats);
 
 	if(num_of_changes < 2)
 		return false; // balanced

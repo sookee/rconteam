@@ -138,7 +138,7 @@ bool TeamBalancer::get_snapshot()
 
 	while(sgl(iss, line) && !trim(line).empty() && line[0] != '-')
 		if(!line.find("map:") && line.size() > 5)
-			g.map = line.substr(5);
+			g.mapname = line.substr(5);
 
 	while(sgl(iss, line) && !trim(line).empty())
 	{

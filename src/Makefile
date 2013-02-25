@@ -22,7 +22,6 @@ CXXFLAGS = \
 	$(GENERALFLAGS) \
 	$(DEBUGFLAGS)
 	
-DEPS := $(wildcard *.h)
 SOURCES := $(wildcard *.cpp)
 OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))
 
@@ -31,7 +30,7 @@ all: rconteam
 rconteam: $(OBJECTS)
 	$(CXX) -o rconteam $(OBJECTS)
 
-%.o: %.c $(DEPS)
+%.o: %.cpp %.h
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 clean:
