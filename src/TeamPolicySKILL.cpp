@@ -107,7 +107,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	const team_id& to = blues < reds ? team_id::B : team_id::R;
 	const team_id& from = reds < blues ? team_id::B : team_id::R;
 
-	const siz num_of_changes = g.teams[from].size() - g.teams[to].size();
+	const siz num_of_changes = g.teams.at(from).size() - g.teams.at(to).size();
 
 	// get stats from previous snapshots for this map
 	stat_map stats; // guid -> stat
@@ -117,7 +117,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	std::map<str, siz> guid_nums; // guid -> num
 
 	str_set guids;
-	for(const siz n: g.teams[team_id::R])
+	for(const siz n: g.teams.at(team_id::R))
 	{
 		if(g.players.find(n) == g.players.cend())
 			continue;
@@ -125,7 +125,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 		num_guids[n] = g.players.at(n).guid;
 		guid_nums[g.players.at(n).guid] = n;
 	}
-	for(const siz n: g.teams[team_id::B])
+	for(const siz n: g.teams.at(team_id::B))
 	{
 		if(g.players.find(n) == g.players.cend())
 			continue;
@@ -159,17 +159,17 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	siz s = 0;
 
 	siz to_ave = 0; // average of to team average scores
-	if((s = g.teams[to].size()) > 0)
+	if((s = g.teams.at(to).size()) > 0)
 	{
-		for(const siz n: g.teams[to])
+		for(const siz n: g.teams.at(to))
 			to_ave += stats[num_guids[n]].average_score;
 		to_ave /= s;
 	}
 
 	siz from_ave = 0; // average of to team average scores
-	if((s = g.teams[to].size()) > 0)
+	if((s = g.teams.at(to).size()) > 0)
 	{
-		for(const siz n: g.teams[from])
+		for(const siz n: g.teams.at(from))
 			from_ave += stats[num_guids[n]].average_score;
 		from_ave /= s;
 	}
@@ -178,7 +178,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	siz change_num = siz(-1);
 	if(to_ave >= from_ave) // pick weakest player to move
 	{
-		for(const siz n: g.teams[from])
+		for(const siz n: g.teams.at(from))
 		{
 			if(stats[num_guids[n]].average_score < low)
 			{
@@ -193,11 +193,11 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 		const siz diff_ave = (from_ave - to_ave) / num_of_changes;
 		const siz ideal_ave = (to_ave + diff_ave) / 2;
 
-		for(const siz n: g.teams[from])
+		for(const siz n: g.teams.at(from))
 		{
 			// calculate projected new to_ave
-			siz new_to_ave = ((to_ave * g.teams[to].size())
-				+ stats[num_guids[n]].average_score) / (g.teams[to].size() + 1);
+			siz new_to_ave = ((to_ave * g.teams.at(to).size())
+				+ stats[num_guids[n]].average_score) / (g.teams.at(to).size() + 1);
 
 			if(new_to_ave < ideal_ave)
 			{

@@ -64,8 +64,8 @@ bool TeamPolicySCORE::balance(const game& g, siz& num, team_id& team)
 	for(auto& pp: g.players)
 	{
 		// delete missing players/specs from stats & rates
-		if((!g.teams[team_id::R].count(pp.first) && !g.teams[team_id::B].count(pp.first))
-		|| g.teams[team_id::S].count(pp.first))
+		if((!g.teams.at(team_id::R).count(pp.first) && !g.teams.at(team_id::B).count(pp.first))
+		|| g.teams.at(team_id::S).count(pp.first))
 		{
 			stats.erase(pp.second.guid);
 			rates.erase(pp.second.guid);
@@ -97,7 +97,7 @@ bool TeamPolicySCORE::balance(const game& g, siz& num, team_id& team)
 	const team_id& to = blues < reds ? team_id::B : team_id::R;
 	const team_id& from = reds < blues ? team_id::B : team_id::R;
 
-	if(g.teams[from].size() - g.teams[to].size() < 2)
+	if(g.teams.at(from).size() - g.teams.at(to).size() < 2)
 		return false; // balanced
 
 	log("blance: Teams need balancing");

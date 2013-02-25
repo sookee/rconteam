@@ -48,7 +48,7 @@ bool TeamPolicyLIFO::balance(const game& g, siz& num, team_id& team)
 	const team_id& to = blues < reds ? team_id::B : team_id::R;
 	const team_id& from = reds < blues ? team_id::B : team_id::R;
 
-	if(g.teams[from].size() - g.teams[to].size() < 2)
+	if(g.teams.at(from).size() - g.teams.at(to).size() < 2)
 		return false; // balanced
 
 	log("blance: Teams need balancing");

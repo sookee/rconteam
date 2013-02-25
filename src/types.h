@@ -83,6 +83,8 @@ typedef std::fstream sfs;
 typedef std::ifstream sifs;
 typedef std::ofstream sofs;
 
+// std::getline is used so frequently in parsing that
+// I like to have something smaller and quicker :)
 inline
 std::istream& sgl(std::istream& is, str& s, char d = '\n')
 {
@@ -131,75 +133,23 @@ void print_duration(std::chrono::duration<Rep, Period> t, std::ostream& os)
 	os << s.count() << "s";
 }
 
-class team_id
+enum class team_id { S, R, B };
+
+inline
+str to_str(const team_id& team)
 {
-	friend class std::map<team_id, team>;
-	siz idx;
-	team_id(siz idx): idx(idx){}
-
-	static const str map;
-	static const std::vector<team_id> ids;
-	static const team_id X;// = -1;
-
-public:
-	static const team_id S;// = 0;
-	static const team_id R;// = 1;
-	static const team_id B;// = 2;
-
-	team_id(): idx(-1){}
-	team_id(const team_id& id): idx(id.idx){}
-
-	const team_id& operator!() const { return *this; }
-
-	operator siz() const { return idx; }
-	operator str() const { return str(1, map.at(idx)); }
-	operator char() const { return map.at(idx); }
-
-	bool operator<(const team_id& id) const { return idx < id.idx; }
-	bool operator>(const team_id& id) const { return idx > id.idx; }
-	bool operator<=(const team_id& id) const { return idx <= id.idx; }
-	bool operator>=(const team_id& id) const { return idx >= id.idx; }
-	bool operator==(const team_id& id) const { return idx == id.idx; }
-
-	team_id& operator=(const team_id& id) { idx = id.idx; return *this; }
-
-
-	// There must be begin and end methods that operate on that structure,
-	// either as members or as stand-alone functions, and that return
-	// iterators to the beginning and end of the structure
-
-	// The iterator itself must support an operator* method, an operator != method,
-	// and an operator++ method, either as members or as stand-alone functions
-	// (you can read more about operator overloading)
-
-	class iterator
-	{
-		friend iterator begin(const team_id&);
-		friend iterator end(const team_id&);
-	private:
-		siz i = 0;
-		iterator(siz i = 3): i(i) {}; // 3 = end
-
-	public:
-		const team_id& operator*() const { return ids[i]; }
-		bool operator!=(const iterator& iter) const { return i != iter.i; }
-		iterator& operator++() { i = i + 1 > 3 ? 0 : i + 1; return *this; }
-
-	};
-};
-
-inline team_id::iterator begin(const team_id&) { return team_id::iterator(0); }
-inline team_id::iterator end(const team_id&) { return team_id::iterator(); }
+	return team == team_id::R ? "R" : team == team_id::B ? "B" : "S";
+}
 
 typedef std::map<team_id, team> team_map;
 
 struct game
 {
 	str map;
-	std::array<siz_set, 3> teams;
+	std::map<team_id, siz_set> teams;
 
 	std::map<siz, player> players; // num -> player
-	game() {}
+	game():teams({{team_id::S,{}}, {team_id::R,{}}, {team_id::B,{}}}) {}
 
 	void clear()
 	{

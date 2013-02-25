@@ -229,7 +229,7 @@ void TeamBalancer::select_policy()
 
 str key(siz num, const team_id& team)
 {
-	return str(team) + "-" + std::to_string(num);
+	return to_str(team) + "-" + std::to_string(num);
 }
 
 void TeamBalancer::run()
@@ -309,7 +309,7 @@ void TeamBalancer::putteam(siz num, const team_id& team)
 		tell(num, "Please balance the teams: " + g.players[num].name);
 		return;
 	}
-	rcon->call("!putteam " + std::to_string(num) + " " + str(team));
+	rcon->call("!putteam " + std::to_string(num) + " " + to_str(team));
 	tell(num, "^3SORRY " + g.players[num].name + " ^3but the teams NEEDED balancing");
 	tell(num, g.players[num].name + " ^7:^3 This was an ^7AUTOMATED^3 action");
 	actions[key(num, team)] = 0;
