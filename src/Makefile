@@ -25,14 +25,14 @@ GENERALFLAGS = \
 CXXFLAGS = \
 	$(GENERALFLAGS) \
 	$(DEBUGFLAGS)
-	
+
 SOURCES := $(wildcard *.cpp)
 OBJECTS := $(patsubst %.cpp,%.o, $(SOURCES))
 
 all: reqs rconteam
 
 reqs:
-	@if (($(REQ_CXX11_TEST))); then echo $(REQ_CXX11_FAIL); exit 1; fi
+	@if(($(REQ_CXX11_TEST))); then echo $(REQ_CXX11_FAIL); exit 1; fi
 
 rconteam: $(OBJECTS)
 	$(CXX) -o rconteam $(OBJECTS)

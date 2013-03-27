@@ -48,13 +48,6 @@ policy_map TeamPolicy::policies;
 
 TeamPolicy::TeamPolicy()
 {
-	if(!policies.empty())
-		return;
-
-	// Built-in policies
-	register_policy(new TeamPolicyLIFO);
-	register_policy(new TeamPolicySCORE);
-	register_policy(new TeamPolicySKILL);
 }
 
 str_set TeamPolicy::get_policy_names()
@@ -72,11 +65,19 @@ str TeamPolicy::get_default_policy_name()
 
 TeamPolicySPtr TeamPolicy::create(const str& type)
 {
+	if(policies.empty())
+	{
+		// Built-in policies
+		register_policy(new TeamPolicyLIFO);
+		register_policy(new TeamPolicySCORE);
+		register_policy(new TeamPolicySKILL);
+	}
+
 	if(policies.find(type) != policies.cend())
 		return policies.at(type);
 
-	log("WARN: Unknown team policy:" << type << ", using default");
-	return policies.at(POLICY_DEFAULT);
+	log("WARN: Unknown team policy: '" << type << "', using default");
+	return policies.at(get_default_policy_name());
 }
 
 bool TeamPolicy::register_policy(TeamPolicy* policy)
