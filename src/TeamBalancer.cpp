@@ -192,9 +192,14 @@ void TeamBalancer::select_policy()
 	}
 
 	str val;
-	rconset("rconteam_policy", val);
+	if(!rconset("rconteam_policy", val))
+	{
+		log("WARN: No policy set in server");
+		val.clear();
+	}
 
 	const str_set policies = TeamPolicy::get_policy_names();
+
 	if(policies.find(val) == policies.cend())
 	{
 		log("WARN: Unknown policy: " << val);
@@ -208,24 +213,28 @@ void TeamBalancer::select_policy()
 	}
 
 	bool old = enforcing;
-	rconset("rconteam_enforcing", enforcing);
+	if(!rconset("rconteam_enforcing", enforcing))
+		enforcing = old;
 	if(enforcing != old)
 		chat("Changing policy to " + str(enforcing?"^1ENFORCING":"^2NON-ENFORCING"));
 
 	old = testing;
-	rconset("rconteam_testing", testing);
+	if(!rconset("rconteam_testing", testing))
+		testing = old;
 	if(testing != old)
 		chat("Changing policy to " + str(testing?"^2TESTING":"^1LIVE"));
 
-	static siz_set teamgames = {1, 3, 4, 5, 8, 9, 11, 12};
+	static const siz_set teamgames = {1, 3, 4, 5, 8, 9, 11, 12};
 
 	old = team_game;
 	siz gametype;
 	if(!rconset("g_gametype", gametype))
 	{
-		log("WARN: Failed to get G-gametype:");
+		log("WARN: Failed to get g_gametype:");
+		team_game = old;
 		return;
 	}
+
 	team_game = teamgames.find(gametype) != teamgames.end();
 	if(team_game != old)
 		chat("System is active for this gametype.");
