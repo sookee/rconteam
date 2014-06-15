@@ -1,9 +1,9 @@
 #pragma once
-#ifndef _OA_TEAMPOLICY_FILO_H__
-#define _OA_TEAMPOLICY_FILO_H__
+#ifndef _OA_TEAMPOLICY_LIFO_H__
+#define _OA_TEAMPOLICY_LIFO_H__
 
 /*
- * TeamPolicyFILO.h
+ * TeamPolicyLIFO.h
  *
  *  Created on: Feb 23, 2013
  *      Author: oasookee@gmail.com
@@ -42,7 +42,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
-const str POLICY_LIFO = "LIFO";
+extern const str POLICY_LIFO;
 
 /**
  * Ballance number of players by switching
@@ -58,4 +58,4 @@ public:
 
 } // oa
 
-#endif /* _OA_TEAMPOLICY_FILO_H__ */
+#endif /* _OA_TEAMPOLICY_LIFO_H__ */

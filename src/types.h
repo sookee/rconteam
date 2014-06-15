@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OA_TYPES_H__
 #define _OA_TYPES_H__
 
@@ -42,6 +42,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include <sstream>
 #include <vector>
 #include <array>
+#include <chrono>
 
 namespace oa {
 

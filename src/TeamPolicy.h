@@ -91,6 +91,13 @@ public:
 	 */
 	static str get_default_policy_name();
 
+
+	/**
+	 * Get the name of the policy that does nothing.
+	 * @return The null policy name
+	 */
+	static str get_null_policy_name();
+
 	/**
 	 * Register a policy with to make it
 	 * available from the factory methods.

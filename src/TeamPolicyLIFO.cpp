@@ -38,6 +38,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
+const str POLICY_LIFO = "LIFO";
+
 str TeamPolicyLIFO::name() const { return POLICY_LIFO; }
 
 bool TeamPolicyLIFO::balance(const game& g, siz& num, team_id& team)

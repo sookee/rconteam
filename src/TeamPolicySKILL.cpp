@@ -39,6 +39,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
+const str POLICY_SKILL = "SKILL";
+
 str TeamPolicySKILL::name() const { return POLICY_SKILL; }
 
 struct stat
@@ -166,7 +168,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 		to_ave /= s;
 	}
 
-	siz from_ave = 0; // average of to team average scores
+	siz from_ave = 0; // average of from team average scores
 	if((s = g.teams.at(to).size()) > 0)
 	{
 		for(const siz n: g.teams.at(from))

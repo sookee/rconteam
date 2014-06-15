@@ -36,6 +36,7 @@ http://www.gnu.org/licenses/gpl-2.0.html
 #include "bug.h"
 #include "log.h"
 
+#include "TeamPolicyNONE.h"
 #include "TeamPolicyLIFO.h"
 #include "TeamPolicySCORE.h"
 #include "TeamPolicySKILL.h"
@@ -61,6 +62,11 @@ str_set TeamPolicy::get_policy_names()
 str TeamPolicy::get_default_policy_name()
 {
 	return POLICY_DEFAULT;
+}
+
+str TeamPolicy::get_null_policy_name()
+{
+	return POLICY_NONE;
 }
 
 TeamPolicySPtr TeamPolicy::create(const str& type)

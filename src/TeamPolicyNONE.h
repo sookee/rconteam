@@ -1,17 +1,16 @@
-#pragma once
-#ifndef _OA_TEAMPOLICY_SCORE_H__
-#define _OA_TEAMPOLICY_SCORE_H__
+//#pragma once
+#ifndef _OA_TEAMPOLICY_NONE_H__
+#define _OA_TEAMPOLICY_NONE_H__
 
 /*
- * TeamPolicyFILO.h
+ * TeamPolicyNONE.h
  *
- *  Created on: Feb 23, 2013
- *      Author: oasookee@gmail.com
+ *  Created on: Jun 15, 2014
+ *      Author: SooKee oasookee@gmail.com
  */
 
 /*-----------------------------------------------------------------.
-| Copyright (C) 2013 SooKee oaskivvy@gmail.com                     |
-|               2013 w!ng                                          |
+| Copyright (C) 2014 SooKee oaskivvy@gmail.com                     |
 '------------------------------------------------------------------'
 
 This program is free software; you can redistribute it and/or
@@ -42,13 +41,12 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
-extern const str POLICY_SCORE;
+extern const str POLICY_NONE;
 
 /**
- * Ballance number of players by switching
- * last person with the most appropriate score/time ratio.
+ * Do nothng
  */
-class TeamPolicySCORE
+class TeamPolicyNONE
 : public TeamPolicy
 {
 public:
@@ -58,4 +56,4 @@ public:
 
 } // oa
 
-#endif /* _OA_TEAMPOLICY_SCORE_H__ */
+#endif /* _OA_TEAMPOLICY_NONE_H__ */

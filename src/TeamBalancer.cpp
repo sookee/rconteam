@@ -180,10 +180,10 @@ bool TeamBalancer::get_snapshot()
  */
 void TeamBalancer::select_policy()
 {
-	bug_func();
+//	bug_func();
 
 	if(!policy.get())
-		policy = TeamPolicy::create(""); // default
+		policy = TeamPolicy::create(TeamPolicy::get_null_policy_name()); // default
 
 	if(!policy.get())
 	{
@@ -221,7 +221,11 @@ void TeamBalancer::select_policy()
 
 	old = team_game;
 	siz gametype;
-	rconset("g_gametype", gametype);
+	if(!rconset("g_gametype", gametype))
+	{
+		log("WARN: Failed to get G-gametype:");
+		return;
+	}
 	team_game = teamgames.find(gametype) != teamgames.end();
 	if(team_game != old)
 		chat("System is active for this gametype.");

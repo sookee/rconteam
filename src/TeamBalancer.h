@@ -132,13 +132,13 @@ private:
 	 * @param val The variable to set to the cvar's value.
 	 */
 	template<typename T>
-	void rconset(const str& cvar, T& val)
+	bool rconset(const str& cvar, T& val)
 	{
 		str response;
 		if(!rcon->call(cvar, response))
 		{
 			log("WARN: rconset failure: " << cvar);
-			return;
+			return false;
 		}
 
 		// Possible responses:
@@ -152,8 +152,16 @@ private:
 			str skip;
 			if(!sgl(sgl(siss(response), skip, ':').ignore(), sval, '^'))
 				log("ERROR: parsing policy response: " << response);
+			return false;
 		}
-		siss(sval) >> val;
+
+		if(!(siss(sval) >> val))
+		{
+			log("ERROR: converting value: " << sval);
+			return false;
+		}
+
+		return true;
 	}
 
 public:

@@ -1,17 +1,12 @@
-#pragma once
-#ifndef _OA_TEAMPOLICY_SCORE_H__
-#define _OA_TEAMPOLICY_SCORE_H__
-
 /*
- * TeamPolicyFILO.h
+ * TeamPolicyNONE.cpp
  *
- *  Created on: Feb 23, 2013
- *      Author: oasookee@gmail.com
+ *  Created on: Jun 15, 2014
+ *      Author: SooKee oasookee@gmail.com
  */
 
 /*-----------------------------------------------------------------.
-| Copyright (C) 2013 SooKee oaskivvy@gmail.com                     |
-|               2013 w!ng                                          |
+| Copyright (C) 2014 SooKee oaskivvy@gmail.com                     |
 '------------------------------------------------------------------'
 
 This program is free software; you can redistribute it and/or
@@ -33,29 +28,22 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 '-----------------------------------------------------------------*/
 
-#include <memory>
+//#include <cmath>
 
-#include "TeamPolicy.h"
-
-#include "rcon.h"
+#include "TeamPolicyNONE.h"
 #include "types.h"
+#include "bug.h"
+#include "log.h"
 
 namespace oa {
 
-extern const str POLICY_SCORE;
+const str POLICY_NONE = "NONE";
 
-/**
- * Ballance number of players by switching
- * last person with the most appropriate score/time ratio.
- */
-class TeamPolicySCORE
-: public TeamPolicy
+str TeamPolicyNONE::name() const { return POLICY_NONE; }
+
+bool TeamPolicyNONE::balance(const game& g, siz& num, team_id& team)
 {
-public:
-	virtual str name() const;
-	virtual bool balance(const game& g, siz& num, team_id& team);
-};
+	return false;
+}
 
 } // oa
-
-#endif /* _OA_TEAMPOLICY_SCORE_H__ */

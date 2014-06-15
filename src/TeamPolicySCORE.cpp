@@ -38,6 +38,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
+const str POLICY_SCORE = "SCORE";
+
 str TeamPolicySCORE::name() const { return POLICY_SCORE; }
 
 struct stat
@@ -59,7 +61,7 @@ rate_map rates; // guid -> rate
 
 bool TeamPolicySCORE::balance(const game& g, siz& num, team_id& team)
 {
-	// update average scors
+	// update average scores
 
 	for(auto& pp: g.players)
 	{
