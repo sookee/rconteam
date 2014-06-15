@@ -62,7 +62,7 @@ void TeamBalancer::tell(siz /*num*/, const str& text) const
 
 bool TeamBalancer::get_snapshot()
 {
-	bug_func();
+	//bug_func();
 	// GET guid's
 
 	game old_g = g; // previous state
@@ -73,7 +73,7 @@ bool TeamBalancer::get_snapshot()
 	if(!rcon->call("!listplayers", response))
 		return false;
 
-	bug_var(response);
+	//bug_var(response);
 
 	// !listplayers: 4 players connected:
 	//  0 B 0   Unknown Player (*)   Ayumi
@@ -255,7 +255,7 @@ void TeamBalancer::run()
 			chat("Analizing Teams");
 
 		get_snapshot(); // updage g
-		g.dump(std::cout); // for testing
+		//g.dump(std::cout); // for testing
 
 		if(!policy.get())
 		{
