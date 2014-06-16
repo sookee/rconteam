@@ -100,7 +100,7 @@ bool TeamBalancer::get_snapshot()
 //			if(guid.empty() && ignore_bots)
 //				continue;
 
-		g.players[num].num = num;
+//		g.players[num].num = num;
 		g.players[num].guid = guid;
 
 		// Did we just join the game?

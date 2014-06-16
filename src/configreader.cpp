@@ -33,20 +33,20 @@ void dbConfig::getDatabaseConfig( str xml_configFileName , oa::dbinfo* conf )
 
 
 	/*read into container object here*/
-        rapidxml::xml_node<> *node = doc.first_node("dbhostname");
+	rapidxml::xml_node<> *node = doc.first_node("dbhostname");
 	conf->host = node->value();
 
 	node = doc.first_node("dbport");
 	conf->port = node->value();
 
 	node = doc.first_node("dblogin");
-	conf->login = node->value();
+	conf->user = node->value();
 
 	node = doc.first_node("dbpassword");
-	conf->password = node->value();
+	conf->pass = node->value();
 
 	node = doc.first_node("dbname");
-	conf->dnName = node->value();
+	conf->base = node->value();
 	
 }
 

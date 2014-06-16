@@ -130,26 +130,26 @@ public:
 
 typedef std::set<slot> slot_set;
 
+enum class team_id {U, R, B, S};
+
+inline
+str to_str(const team_id& t)
+{
+	return t == team_id::R ? "R" : t == team_id::B ? "B" : "S";
+}
+
 struct player
 {
-	slot num; // slot
+//	slot num; // slot
 	siz score;
 	siz ping;
 	str name;
 	str guid;
-	char team;
+//	team_id team;
 	hr_time_point joined;
 
-	player(): num(0), score(0), ping(0), team('S'), joined(hr_clk::now()) {}
+	player(): /*num(0), */score(0), ping(0), /*team(team_id::U), */joined(hr_clk::now()) {}
 };
-
-enum class team_id { S, R, B };
-
-inline
-str to_str(const team_id& team)
-{
-	return team == team_id::R ? "R" : team == team_id::B ? "B" : "S";
-}
 
 typedef siz_set team; // contains guids
 typedef std::map<team_id, team> team_map;
@@ -229,9 +229,9 @@ struct dbinfo
 {
 	str host;
 	str port;
-	str login;
-	str password;
-	str dnName;
+	str user;
+	str pass;
+	str base;
 };
 
 } // oa
