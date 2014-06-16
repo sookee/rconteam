@@ -41,7 +41,7 @@ const str POLICY_NONE = "NONE";
 
 str TeamPolicyNONE::name() const { return POLICY_NONE; }
 
-bool TeamPolicyNONE::balance(const game& g, siz& num, team_id& team)
+bool TeamPolicyNONE::balance(const game& g, slot& num, team_id& team)
 {
 	return false;
 }

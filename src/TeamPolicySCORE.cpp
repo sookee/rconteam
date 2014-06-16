@@ -59,7 +59,7 @@ typedef std::map<str, rate> rate_map;
 stat_map stats; // guid -> stat
 rate_map rates; // guid -> rate
 
-bool TeamPolicySCORE::balance(const game& g, siz& num, team_id& team)
+bool TeamPolicySCORE::balance(const game& g, slot& num, team_id& team)
 {
 	// update average scores
 

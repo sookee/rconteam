@@ -31,5 +31,8 @@ http://www.gnu.org/licenses/gpl-2.0.html
 
 namespace oa {
 
+slot slot::bad(-1);
+slot slot::null(0);
+
 } // oa
 

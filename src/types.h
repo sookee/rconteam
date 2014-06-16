@@ -76,6 +76,9 @@ typedef std::lock_guard<std::mutex> lock_guard;
 
 // streams
 
+typedef std::istream sis;
+typedef std::ostream sos;
+
 typedef std::stringstream sss;
 typedef std::istringstream siss;
 typedef std::ostringstream soss;
@@ -100,9 +103,36 @@ std::istream& sgl(std::istream&& is, str& s, char d = '\n')
 
 // project types
 
+class slot
+{
+private:
+	siz num;
+
+public:
+
+	static slot bad;
+	static slot null;
+
+	slot(): num(bad.num) {}
+	explicit slot(siz num): num(num) {}
+
+	bool operator<(const slot& s) const { return num < s.num; }
+	bool operator>(const slot& s) const { return num > s.num; }
+	bool operator==(const slot& s) const { return num == s.num; }
+	bool operator!=(const slot& s) const { return num != s.num; }
+
+	friend sos& operator<<(sos& o, const slot& s) { return o << s.num; }
+	friend sis& operator>>(sis& i, slot& s) { return i >> s.num; }
+
+	explicit operator str() const { return std::to_string(num); }
+	explicit operator siz() const { return num; }
+};
+
+typedef std::set<slot> slot_set;
+
 struct player
 {
-	siz num; // slot
+	slot num; // slot
 	siz score;
 	siz ping;
 	str name;
@@ -113,7 +143,16 @@ struct player
 	player(): num(0), score(0), ping(0), team('S'), joined(hr_clk::now()) {}
 };
 
+enum class team_id { S, R, B };
+
+inline
+str to_str(const team_id& team)
+{
+	return team == team_id::R ? "R" : team == team_id::B ? "B" : "S";
+}
+
 typedef siz_set team; // contains guids
+typedef std::map<team_id, team> team_map;
 
 // TODO: mve to utils.h
 template<typename Rep, typename Period>
@@ -134,22 +173,12 @@ void print_duration(std::chrono::duration<Rep, Period> t, std::ostream& os)
 	os << s.count() << "s";
 }
 
-enum class team_id { S, R, B };
-
-inline
-str to_str(const team_id& team)
-{
-	return team == team_id::R ? "R" : team == team_id::B ? "B" : "S";
-}
-
-typedef std::map<team_id, team> team_map;
-
 struct game
 {
 	str mapname;
-	std::map<team_id, siz_set> teams;
+	std::map<team_id, slot_set> teams;
+	std::map<slot, player> players; // num -> player
 
-	std::map<siz, player> players; // num -> player
 	game():teams({{team_id::S,{}}, {team_id::R,{}}, {team_id::B,{}}}) {}
 
 	void clear()
@@ -169,7 +198,7 @@ struct game
 	{
 		soss oss;
 		os << "red:\n";
-		for(const siz& num: teams[team_id::R])
+		for(const slot& num: teams[team_id::R])
 		{
 			oss.str("");
 			print_duration(hr_clk::now() - players[num].joined, oss);
@@ -179,7 +208,7 @@ struct game
 				<< '\n';
 		}
 		os << "blue:\n";
-		for(const siz& num: teams[team_id::B])
+		for(const slot& num: teams[team_id::B])
 		{
 			oss.str("");
 			print_duration(hr_clk::now() - players[num].joined, oss);
@@ -189,7 +218,7 @@ struct game
 			<< '\n';
 		}
 		os << "spec:\n";
-		for(const siz& num: teams[team_id::S])
+		for(const slot& num: teams[team_id::S])
 			os << '\t' << players[num].guid << ' ' << players[num].name
 				<< " is speccing." << '\n';
 	}

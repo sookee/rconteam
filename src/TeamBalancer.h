@@ -84,7 +84,7 @@ private:
 	};
 
 	/**
-	 * Keep trach of how many warnings each player has had
+	 * Keep track of how many warnings each player has had
 	 * (by slot number <num>).
 	 */
 	typedef std::map<str, siz> action_map; // <num> -> int
@@ -95,14 +95,14 @@ private:
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void call_teams(siz num, const team_id& team);
+	void call_teams(slot num, const team_id& team);
 
 	/**
 	 * Message to a specific player to balance teams.
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void request_player(siz num, const team_id& team);
+	void request_player(slot num, const team_id& team);
 
 	/**
 	 * If policy is ENFORCING then actuall move the specific player
@@ -110,7 +110,7 @@ private:
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void putteam(siz num, const team_id& team);
+	void putteam(slot num, const team_id& team);
 
 	/**
 	 * Print a chat message on the console for all players to read.
@@ -124,7 +124,7 @@ private:
 	 * @param text The text to be displayed to the specified player.
 	 * TODO: Not working - simply calls chat(text);
 	 */
-	void tell(siz num, const str& text) const;
+	void tell(slot num, const str& text) const;
 
 	/**
 	 * Set a variable from a cvar using rcon.

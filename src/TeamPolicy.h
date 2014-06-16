@@ -66,11 +66,11 @@ public:
 	 * This function will be called repeatedly to discover
 	 * a balancing action if necessary.
 	 * @param g The game to be balanced.
-	 * @param num Output the num of the player to be moved.
+	 * @param num Output the slot of the player to be moved.
 	 * @return true if a balancing recommendation has been made else false.
 	 * The return parameter num conteain the resommendation.
 	 */
-	virtual bool balance(const game& g, siz& num, team_id& team) = 0;
+	virtual bool balance(const game& g, slot& num, team_id& team) = 0;
 
 	/**
 	 * Factory funstion for selecting policies

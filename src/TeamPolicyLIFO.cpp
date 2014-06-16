@@ -42,7 +42,7 @@ const str POLICY_LIFO = "LIFO";
 
 str TeamPolicyLIFO::name() const { return POLICY_LIFO; }
 
-bool TeamPolicyLIFO::balance(const game& g, siz& num, team_id& team)
+bool TeamPolicyLIFO::balance(const game& g, slot& num, team_id& team)
 {
 	const siz reds = g.teams.at(team_id::R).size();
 	const siz blues = g.teams.at(team_id::B).size();
@@ -56,9 +56,9 @@ bool TeamPolicyLIFO::balance(const game& g, siz& num, team_id& team)
 	log("blance: Teams need balancing");
 
 	hr_time_point last_time;
-	siz last_num = 0;
+	slot last_num = slot::null;
 	bool found = false;
-	for(const siz& this_num: g.teams.at(from))
+	for(const slot& this_num: g.teams.at(from))
 	{
 		if(g.players.at(this_num).joined <= last_time)
 			continue;

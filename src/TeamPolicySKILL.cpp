@@ -101,7 +101,7 @@ void update_stats(const str& mapname, const stat_map& stats)
 		ofs << line << '\n';
 }
 
-bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
+bool TeamPolicySKILL::balance(const game& g, slot& num, team_id& team)
 {
 	const siz reds = g.teams.at(team_id::R).size();
 	const siz blues = g.teams.at(team_id::B).size();
@@ -115,11 +115,11 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	stat_map stats; // guid -> stat
 
 	// cache relevant info
-	std::map<siz, str> num_guids; // num -> guid
-	std::map<str, siz> guid_nums; // guid -> num
+	std::map<slot, str> num_guids; // num -> guid
+	std::map<str, slot> guid_nums; // guid -> num
 
 	str_set guids;
-	for(const siz n: g.teams.at(team_id::R))
+	for(const slot n: g.teams.at(team_id::R))
 	{
 		if(g.players.find(n) == g.players.cend())
 			continue;
@@ -127,7 +127,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 		num_guids[n] = g.players.at(n).guid;
 		guid_nums[g.players.at(n).guid] = n;
 	}
-	for(const siz n: g.teams.at(team_id::B))
+	for(const slot n: g.teams.at(team_id::B))
 	{
 		if(g.players.find(n) == g.players.cend())
 			continue;
@@ -141,7 +141,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	// update the stats from the snapshot g
 	for(auto& s: stats)
 	{
-		const siz n = guid_nums[s.first];
+		const slot n = guid_nums[s.first];
 		if(g.players.find(n) == g.players.cend())
 			continue;
 		siz snapshot = s.second.snapshots + 1;
@@ -163,7 +163,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	siz to_ave = 0; // average of to team average scores
 	if((s = g.teams.at(to).size()) > 0)
 	{
-		for(const siz n: g.teams.at(to))
+		for(const slot n: g.teams.at(to))
 			to_ave += stats[num_guids[n]].average_score;
 		to_ave /= s;
 	}
@@ -171,16 +171,16 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 	siz from_ave = 0; // average of from team average scores
 	if((s = g.teams.at(to).size()) > 0)
 	{
-		for(const siz n: g.teams.at(from))
+		for(const slot n: g.teams.at(from))
 			from_ave += stats[num_guids[n]].average_score;
 		from_ave /= s;
 	}
 
 	siz low = siz(-1);
-	siz change_num = siz(-1);
+	slot change_num = slot::bad;
 	if(to_ave >= from_ave) // pick weakest player to move
 	{
-		for(const siz n: g.teams.at(from))
+		for(const slot n: g.teams.at(from))
 		{
 			if(stats[num_guids[n]].average_score < low)
 			{
@@ -195,7 +195,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 		const siz diff_ave = (from_ave - to_ave) / num_of_changes;
 		const siz ideal_ave = (to_ave + diff_ave) / 2;
 
-		for(const siz n: g.teams.at(from))
+		for(const slot n: g.teams.at(from))
 		{
 			// calculate projected new to_ave
 			siz new_to_ave = ((to_ave * g.teams.at(to).size())
@@ -220,7 +220,7 @@ bool TeamPolicySKILL::balance(const game& g, siz& num, team_id& team)
 		}
 	}
 
-	if(change_num == siz(-1))
+	if(change_num == slot::bad)
 		log("ERROR: failed to find lowest average score");
 	else
 		num = change_num;

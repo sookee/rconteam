@@ -53,11 +53,13 @@ void TeamBalancer::chat(const str& text) const
 	rcon->call("chat " + prefix + text + suffix);
 }
 
-void TeamBalancer::tell(siz /*num*/, const str& text) const
+void TeamBalancer::tell(slot num, const str& text) const
 {
-	// TELL not working - is there a way to do this?
-	chat(text);
-//	rcon.call("tell " + std::to_string(num) + " " + prefix + text + suffix);
+// TODO: tell people privately or not?
+//	str res;
+//	if(!rcon.call("msg_to_beep " + std::to_string(num) + " " + prefix + text + suffix, res)
+//	|| res == "")
+		chat(text); // fallback if msg_to_beep fails
 }
 
 bool TeamBalancer::get_snapshot()
@@ -87,7 +89,7 @@ bool TeamBalancer::get_snapshot()
 	while(sgl(iss, line))
 	{
 		str team, guid, skip;
-		siz num;
+		slot num;
 
 		if(!sgl(sgl(siss(line) >> num >> team, skip, '*'), guid, ')'))
 		{
@@ -142,7 +144,8 @@ bool TeamBalancer::get_snapshot()
 
 	while(sgl(iss, line) && !trim(line).empty())
 	{
-		siz num, score, ping;
+		slot num;
+		siz score, ping;
 		str skip, ip;
 
 		siz pos = get_last_field(line, skip);
@@ -240,9 +243,9 @@ void TeamBalancer::select_policy()
 		chat("System is active for this gametype.");
 }
 
-str key(siz num, const team_id& team)
+str key(slot num, const team_id& team)
 {
-	return to_str(team) + "-" + std::to_string(num);
+	return to_str(team) + "-" + str(num);
 }
 
 void TeamBalancer::run()
@@ -277,7 +280,7 @@ void TeamBalancer::run()
 		}
 
 		// implement team chages using rcon
-		siz num;
+		slot num;
 		team_id team;
 		if(!policy->balance(g, num, team))
 		{
@@ -301,28 +304,28 @@ void TeamBalancer::run()
 	}
 }
 
-void TeamBalancer::call_teams(siz num, const team_id& team)
+void TeamBalancer::call_teams(slot num, const team_id& team)
 {
 	chat("Please balance the teams");
 	log("call_teams    : " << num << " " << g.players[num].name);
 	++actions[key(num, team)]; // escalate
 }
 
-void TeamBalancer::request_player(siz num, const team_id& team)
+void TeamBalancer::request_player(slot num, const team_id& team)
 {
 	tell(num, "Please balance the teams: " + g.players[num].name);
 	log("request_player: " << num << " " << g.players[num].name);
 	++actions[key(num, team)]; // escalate
 }
 
-void TeamBalancer::putteam(siz num, const team_id& team)
+void TeamBalancer::putteam(slot num, const team_id& team)
 {
 	if(!enforcing)
 	{
 		tell(num, "Please balance the teams: " + g.players[num].name);
 		return;
 	}
-	rcon->call("!putteam " + std::to_string(num) + " " + to_str(team));
+	rcon->call("!putteam " + str(num) + " " + to_str(team));
 	tell(num, "^3SORRY " + g.players[num].name + " ^3but the teams NEEDED balancing");
 	tell(num, g.players[num].name + " ^7:^3 This was an ^7AUTOMATED^3 action");
 	actions[key(num, team)] = 0;
