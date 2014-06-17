@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _OA_TEAMPOLICY_H__
 #define _OA_TEAMPOLICY_H__
 
@@ -70,7 +70,7 @@ public:
 	 * @return true if a balancing recommendation has been made else false.
 	 * The return parameter num conteain the resommendation.
 	 */
-	virtual bool balance(const game& g, slot& num, team_id& team) = 0;
+	virtual bool balance(const game& g, slot& num, team& t) = 0;
 
 	/**
 	 * Factory funstion for selecting policies

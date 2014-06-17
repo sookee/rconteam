@@ -95,14 +95,14 @@ private:
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void call_teams(slot num, const team_id& team);
+	void call_teams(slot num, const team& team);
 
 	/**
 	 * Message to a specific player to balance teams.
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void request_player(slot num, const team_id& team);
+	void request_player(slot num, const team& team);
 
 	/**
 	 * If policy is ENFORCING then actuall move the specific player
@@ -110,7 +110,7 @@ private:
 	 * @param num The player recommended to move.
 	 * @param team The recommended team for the player to join.
 	 */
-	void putteam(slot num, const team_id& team);
+	void putteam(slot num, const team& team);
 
 	/**
 	 * Print a chat message on the console for all players to read.

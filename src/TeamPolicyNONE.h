@@ -51,7 +51,7 @@ class TeamPolicyNONE
 {
 public:
 	virtual str name() const;
-	virtual bool balance(const game& g, slot& num, team_id& team);
+	virtual bool balance(const game& g, slot& num, team& t);
 };
 
 } // oa

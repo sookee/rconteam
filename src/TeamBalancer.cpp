@@ -88,10 +88,11 @@ bool TeamBalancer::get_snapshot()
 	sgl(iss, line);
 	while(sgl(iss, line))
 	{
-		str team, guid, skip;
+		team t;
+		str guid, skip;
 		slot num;
 
-		if(!sgl(sgl(siss(line) >> num >> team, skip, '*'), guid, ')'))
+		if(!sgl(sgl(siss(line) >> num >> t, skip, '*'), guid, ')'))
 		{
 			log("ERROR: parsing !listplayers: " << line);
 			return false;
@@ -104,21 +105,21 @@ bool TeamBalancer::get_snapshot()
 		g.players[num].guid = guid;
 
 		// Did we just join the game?
-		bool joined_game = !old_g.teams[team_id::R].count(num) && !old_g.teams[team_id::B].count(num);
+		bool joined_game = !old_g.teams[team::R].count(num) && !old_g.teams[team::B].count(num);
 
-		if(team == "R" && (!testing || !guid.empty())) // only count blue team bots for testing
+		if(t == team::R && (!testing || !guid.empty())) // only count blue team bots for testing
 		{
-			if(g.teams[team_id::R].insert(num).second  && (old_g.teams[team_id::B].count(num) || joined_game))
+			if(g.teams[team::R].insert(num).second  && (old_g.teams[team::B].count(num) || joined_game))
 				g.players[num].joined = hr_clk::now();
 		}
-		else if(team == "B")
+		else if(t == team::B)
 		{
-			if(g.teams[team_id::B].insert(num).second && (old_g.teams[team_id::R].count(num) || joined_game))
+			if(g.teams[team::B].insert(num).second && (old_g.teams[team::R].count(num) || joined_game))
 				g.players[num].joined = hr_clk::now();
 		}
-		else if(team == "S")
+		else if(t == team::S)
 		{
-			g.teams[team_id::S].insert(num);
+			g.teams[team::S].insert(num);
 		}
 	}
 
@@ -243,7 +244,7 @@ void TeamBalancer::select_policy()
 		chat("System is active for this gametype.");
 }
 
-str key(slot num, const team_id& team)
+str key(slot num, const team& team)
 {
 	return to_str(team) + "-" + str(num);
 }
@@ -281,7 +282,7 @@ void TeamBalancer::run()
 
 		// implement team chages using rcon
 		slot num;
-		team_id team;
+		team team;
 		if(!policy->balance(g, num, team))
 		{
 			actions.clear();
@@ -304,21 +305,21 @@ void TeamBalancer::run()
 	}
 }
 
-void TeamBalancer::call_teams(slot num, const team_id& team)
+void TeamBalancer::call_teams(slot num, const team& team)
 {
 	chat("Please balance the teams");
 	log("call_teams    : " << num << " " << g.players[num].name);
 	++actions[key(num, team)]; // escalate
 }
 
-void TeamBalancer::request_player(slot num, const team_id& team)
+void TeamBalancer::request_player(slot num, const team& team)
 {
 	tell(num, "Please balance the teams: " + g.players[num].name);
 	log("request_player: " << num << " " << g.players[num].name);
 	++actions[key(num, team)]; // escalate
 }
 
-void TeamBalancer::putteam(slot num, const team_id& team)
+void TeamBalancer::putteam(slot num, const team& team)
 {
 	if(!enforcing)
 	{

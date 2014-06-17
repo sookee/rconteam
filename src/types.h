@@ -130,12 +130,31 @@ public:
 
 typedef std::set<slot> slot_set;
 
-enum class team_id {U, R, B, S};
+enum class team {U, R, B, S, bad = -1};
 
 inline
-str to_str(const team_id& t)
+team to_team(const str& s)
 {
-	return t == team_id::R ? "R" : t == team_id::B ? "B" : "S";
+	return s=="U"?team::U:(s=="R"?team::R:(s=="B"?team::B:(s=="S"?team::S:team::bad)));
+}
+
+inline
+sis& operator>>(sis& i, team& t)
+{
+	int s;
+	if(i >> s)
+	{
+		if(s < 0 || s > 3)
+			i.setstate(std::ios::failbit);
+		t = static_cast<team>(s);
+	}
+	return i;
+}
+
+inline
+str to_str(const team& t)
+{
+	return t == team::R ? "R" : t == team::B ? "B" : "S";
 }
 
 struct player
@@ -151,8 +170,8 @@ struct player
 	player(): /*num(0), */score(0), ping(0), /*team(team_id::U), */joined(hr_clk::now()) {}
 };
 
-typedef siz_set team; // contains guids
-typedef std::map<team_id, team> team_map;
+//typedef siz_set team; // contains guids
+//typedef std::map<team_id, team> team_map;
 
 // TODO: mve to utils.h
 template<typename Rep, typename Period>
@@ -176,17 +195,17 @@ void print_duration(std::chrono::duration<Rep, Period> t, std::ostream& os)
 struct game
 {
 	str mapname;
-	std::map<team_id, slot_set> teams;
+	std::map<team, slot_set> teams;
 	std::map<slot, player> players; // num -> player
 
-	game():teams({{team_id::S,{}}, {team_id::R,{}}, {team_id::B,{}}}) {}
+	game():teams({{team::S,{}}, {team::R,{}}, {team::B,{}}}) {}
 
 	void clear()
 	{
 		mapname.clear();
-		teams[team_id::S].clear();
-		teams[team_id::R].clear();
-		teams[team_id::B].clear();
+		teams[team::S].clear();
+		teams[team::R].clear();
+		teams[team::B].clear();
 //		players.clear();
 	}
 
@@ -198,7 +217,7 @@ struct game
 	{
 		soss oss;
 		os << "red:\n";
-		for(const slot& num: teams[team_id::R])
+		for(const slot& num: teams[team::R])
 		{
 			oss.str("");
 			print_duration(hr_clk::now() - players[num].joined, oss);
@@ -208,7 +227,7 @@ struct game
 				<< '\n';
 		}
 		os << "blue:\n";
-		for(const slot& num: teams[team_id::B])
+		for(const slot& num: teams[team::B])
 		{
 			oss.str("");
 			print_duration(hr_clk::now() - players[num].joined, oss);
@@ -218,7 +237,7 @@ struct game
 			<< '\n';
 		}
 		os << "spec:\n";
-		for(const slot& num: teams[team_id::S])
+		for(const slot& num: teams[team::S])
 			os << '\t' << players[num].guid << ' ' << players[num].name
 				<< " is speccing." << '\n';
 	}

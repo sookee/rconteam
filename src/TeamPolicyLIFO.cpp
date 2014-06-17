@@ -42,13 +42,13 @@ const str POLICY_LIFO = "LIFO";
 
 str TeamPolicyLIFO::name() const { return POLICY_LIFO; }
 
-bool TeamPolicyLIFO::balance(const game& g, slot& num, team_id& team)
+bool TeamPolicyLIFO::balance(const game& g, slot& num, team& t)
 {
-	const siz reds = g.teams.at(team_id::R).size();
-	const siz blues = g.teams.at(team_id::B).size();
+	const siz reds = g.teams.at(team::R).size();
+	const siz blues = g.teams.at(team::B).size();
 
-	const team_id& to = blues < reds ? team_id::B : team_id::R;
-	const team_id& from = reds < blues ? team_id::B : team_id::R;
+	const team& to = blues < reds ? team::B : team::R;
+	const team& from = reds < blues ? team::B : team::R;
 
 	if(g.teams.at(from).size() - g.teams.at(to).size() < 2)
 		return false; // balanced
@@ -67,7 +67,7 @@ bool TeamPolicyLIFO::balance(const game& g, slot& num, team_id& team)
 		found = true;
 	}
 
-	team = to;
+	t = to;
 	num = last_num;
 
 	return found;

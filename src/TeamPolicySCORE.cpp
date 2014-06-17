@@ -59,15 +59,15 @@ typedef std::map<str, rate> rate_map;
 stat_map stats; // guid -> stat
 rate_map rates; // guid -> rate
 
-bool TeamPolicySCORE::balance(const game& g, slot& num, team_id& team)
+bool TeamPolicySCORE::balance(const game& g, slot& num, team& t)
 {
 	// update average scores
 
 	for(auto& pp: g.players)
 	{
 		// delete missing players/specs from stats & rates
-		if((!g.teams.at(team_id::R).count(pp.first) && !g.teams.at(team_id::B).count(pp.first))
-		|| g.teams.at(team_id::S).count(pp.first))
+		if((!g.teams.at(team::R).count(pp.first) && !g.teams.at(team::B).count(pp.first))
+		|| g.teams.at(team::S).count(pp.first))
 		{
 			stats.erase(pp.second.guid);
 			rates.erase(pp.second.guid);
@@ -93,11 +93,11 @@ bool TeamPolicySCORE::balance(const game& g, slot& num, team_id& team)
 		}
 	}
 
-	const siz reds = g.teams.at(team_id::R).size();
-	const siz blues = g.teams.at(team_id::B).size();
+	const siz reds = g.teams.at(team::R).size();
+	const siz blues = g.teams.at(team::B).size();
 
-	const team_id& to = blues < reds ? team_id::B : team_id::R;
-	const team_id& from = reds < blues ? team_id::B : team_id::R;
+	const team& to = blues < reds ? team::B : team::R;
+	const team& from = reds < blues ? team::B : team::R;
 
 	if(g.teams.at(from).size() - g.teams.at(to).size() < 2)
 		return false; // balanced

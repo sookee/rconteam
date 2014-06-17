@@ -101,13 +101,13 @@ void update_stats(const str& mapname, const stat_map& stats)
 		ofs << line << '\n';
 }
 
-bool TeamPolicySKILL::balance(const game& g, slot& num, team_id& team)
+bool TeamPolicySKILL::balance(const game& g, slot& num, team& t)
 {
-	const siz reds = g.teams.at(team_id::R).size();
-	const siz blues = g.teams.at(team_id::B).size();
+	const siz reds = g.teams.at(team::R).size();
+	const siz blues = g.teams.at(team::B).size();
 
-	const team_id& to = blues < reds ? team_id::B : team_id::R;
-	const team_id& from = reds < blues ? team_id::B : team_id::R;
+	const team& to = blues < reds ? team::B : team::R;
+	const team& from = reds < blues ? team::B : team::R;
 
 	const siz num_of_changes = g.teams.at(from).size() - g.teams.at(to).size();
 
@@ -119,7 +119,7 @@ bool TeamPolicySKILL::balance(const game& g, slot& num, team_id& team)
 	std::map<str, slot> guid_nums; // guid -> num
 
 	str_set guids;
-	for(const slot n: g.teams.at(team_id::R))
+	for(const slot n: g.teams.at(team::R))
 	{
 		if(g.players.find(n) == g.players.cend())
 			continue;
@@ -127,7 +127,7 @@ bool TeamPolicySKILL::balance(const game& g, slot& num, team_id& team)
 		num_guids[n] = g.players.at(n).guid;
 		guid_nums[g.players.at(n).guid] = n;
 	}
-	for(const slot n: g.teams.at(team_id::B))
+	for(const slot n: g.teams.at(team::B))
 	{
 		if(g.players.find(n) == g.players.cend())
 			continue;
